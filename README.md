@@ -13,6 +13,7 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 | Columna | tipo de dato | Restricción |
 | --- | --- | --- |
 |*nombre* | cadena de caracteres (30) | Mayúscula |
+| --- | --- | --- |
 | fecha_nacimiento | fecha | Entre 1500 y 1900 |
 | fecha_muerte | fecha |  |
 | epoca | cadenade caracteres (20) | Renacimiento,Barroco,Clásica,Romántica,Moderna |
