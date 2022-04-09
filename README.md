@@ -5,7 +5,7 @@ Debes crear un esquema relacional de una temática de tu interés con al menos 5
 
 ## #Tablas
 
-| Compositores | 
+| Compositores | --- | --- |
 | --- | --- | --- |
 | nombre | cadena de caracteres (30) | Mayúscula |
 | fecha_nacimiento | fecha | Entre 1500 y 1900
