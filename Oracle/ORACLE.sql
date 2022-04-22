@@ -81,3 +81,49 @@ ALTER TABLE interpretación DROP CONSTRAINT CK_obra;
 
 /* 6.	Desactivar la restricción que afecta a País_nacimiento de la tabla Compositores.*/
 ALTER TABLE compositores DISABLE CONSTRAINT CK_fnac;
+
+/* INSERTS */
+
+    /* Tabla compositores */
+INSERT INTO compositores values ('Mozart', '1756-01-27', '1791-12-05' ,'Clasicismo', 'Alemania');
+INSERT INTO compositores values ('Chopin','1849-10-17', '1849-10-17' ,'Romanticismo', 'Polonia');
+INSERT INTO compositores values ('Bach','1685-03-31', '1750-07-28','Barroco', 'Alemania');
+INSERT INTO compositores values ('Monteverdi','1567-05-09', '1643-11-29','Barroco', 'Italia');
+INSERT INTO compositores values ('Beethoven','1770-12-26', '1827-03-26','Clasicismo','Alemania');
+INSERT INTO compositores values ('Wagner','1813-05-22', '1883-02-13','Romanticismo','Alemania');
+
+    /* Tabla composiciones */
+---
+INSERT INTO composiciones values ('Concierto para violin n3 en Sol M','3','Orquesta sinfonica y solista','Sinfonica con solista','Mozart');
+INSERT INTO composiciones values ('Sonata para teclado a cuatro manos','3','Sonata','Duo','Mozart');
+INSERT INTO composiciones values ('El rapto del serrallo','3','Opera','Orquesta sinfonica y Vocalista','Mozart');
+---
+INSERT INTO composiciones values ('Nocturnos Opus 9','21','Nocturnos','Instrumental','Chopin');
+INSERT INTO composiciones values ('Concierto para piano n2 en Fa M','3','Concierto','Orquesta sinfonica y solista','Chopin');
+INSERT INTO composiciones values ('Sonata para Cello en Sol m Opus 65','4','Sonata','Orquesta sinfonica y solista','Chopin');
+---
+INSERT INTO composiciones values ('Pasión Según San Juan','40','Oratorio','Orquesta Sinfónica','Bach')
+INSERT INTO composiciones values ('Concierto de Brandemburgo','3','Concierto','Orquesta de Cámara','Bach')
+INSERT INTO composiciones values ('Concierto para 2 violines','3','Concierto','Concierto Solista','Bach')
+---
+INSERT INTO composiciones values ('Las fábulas de Orfeo','5','Opera','Orquesta Sinfónica','Monteverdi')
+INSERT INTO composiciones values ('Selva morale e spirituale','4','Misa','Orquesta Sinfónica','Monteverdi')
+INSERT INTO composiciones values ('El regreso de Ulises a la patria','5','Opera','Orquesta Sinfónica','Monteverdi')
+---
+INSERT INTO composiciones values ('Sinfonía nº 5','4','Sinfonía','Orquesta Sinfónica','Beethoven')
+INSERT INTO composiciones values ('Marcha turca','1','Danza','Orquesta Sinfónica','Beethoven')
+INSERT INTO composiciones values ('Concierto para violín','4','Concierto','Orquesta solista','Beethoven')
+---
+INSERT INTO composiciones values ('Cabalgata de las Valquirias','32','Opera','Orquesta Sinfónica','Wagner')
+INSERT INTO composiciones values ('El holandés errante','15','Opera','Orquesta Sinfónica','Wagner')
+INSERT INTO composiciones values ('Tristán e Isolda','37','Opera','Orquesta Sinfónica','Wagner')
+
+    /* Tabla interprete*/
+INSERT INTO interpretes values
+INSERT INTO interpretes values
+INSERT INTO interpretes values
+INSERT INTO interpretes values
+INSERT INTO interpretes values
+INSERT INTO interpretes values
+
+    /* Tabla lugar_interpretacion*/
