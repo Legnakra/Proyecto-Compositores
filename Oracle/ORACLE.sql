@@ -3,11 +3,11 @@ CREATE TABLE compositores (
     fecha_nacimiento DATE,
     fecha_muerte DATE,
     epoca VARCHAR (20),
-    pais_naciemnto VARCHAR (20),
+    pais_nacimiento VARCHAR (20),
     CONSTRAINT PK_nom PRIMARY KEY (nombre),
-    CONSTRAINT CK_fnac CHECK (TO_NUMBER(substr(carreradeb, -4, 4)) BETWEEN 1500 AND 1900),
+    CONSTRAINT CK_fnac CHECK (TO_NUMBER(substr(fecha_nacimiento, -4, 4)) BETWEEN 1500 AND 1900),
     CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('Renacimiento','Barroco','Clásica','Clásica','Romántica', 'Moderna')),
-    CONSTRAINT CK_fnac CHECK (pais_nacimiento IS NOT NULL)
+    CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL)
 );
 
 
@@ -33,7 +33,7 @@ CREATE TABLE interprete (
     CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete),
     CONSTRAINT FK_tipo FOREIGN KEY (tipo) REFERENCES composiciones (tipo_comp)
     CONSTRAINT CK_pais CHECK (pais IS NOT NULL),
-    CONSTRAINT CK_tipo CHECK (tipo) IN ('Orquesta sinfónica','Orquesta solista', 'Orquesta cámara')
+    CONSTRAINT CK_tipo CHECK (tipo_comp) IN ('Orquesta sinfónica','Orquesta solista', 'Orquesta cámara')
 );
 
 CREATE TABLE lugar_interpretacion (
