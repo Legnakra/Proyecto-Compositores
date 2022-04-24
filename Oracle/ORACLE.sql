@@ -6,7 +6,7 @@ CREATE TABLE compositores (
     pais_nacimiento VARCHAR (20),
     CONSTRAINT PK_nom PRIMARY KEY (nombre),
     CONSTRAINT CK_fnac CHECK (TO_NUMBER(substr(fecha_nacimiento, -4, 4)) BETWEEN 1500 AND 1900),
-    CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('Renacimiento','Barroco','Clásica','Clásica','Romántica', 'Moderna')),
+    CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('Renacimiento','Barroco','Clásica','Clasicismo','Romanticismo', 'Moderna')),
     CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL)
 );
 
@@ -71,7 +71,7 @@ ALTER TABLE composiciones DROP movimientos;
 ALTER TABLE compositores MODIFY nombre VARCHAR2 (20);
 
 /* 4.	Añadir una restricción a Aforo en la tabla Interpretación para que el mínimo sea 250. */
-ALTER TABLE interpretacion ADD CONSTRAINT CK_minimo (aforo > 250);
+ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
 
 /* 5.	Eliminar la restricción sobre la columna Obra de la tabla Interpretación.*/
 ALTER TABLE interpretación DROP CONSTRAINT CK_obra;
@@ -91,13 +91,13 @@ INSERT INTO compositores values ('Wagner','1813-05-22', '1883-02-13','Romanticis
 
     /* Tabla composiciones */
 ---
-INSERT INTO composiciones values ('Concierto para violin n3 en Sol M','3','Orquesta Sinfónica y solista','Sinfónica con solista','Mozart');
+INSERT INTO composiciones values ('Concierto para violin n3 en Sol M','3','Orquesta solista','Orquesta solista','Mozart');
 INSERT INTO composiciones values ('Sonata para teclado a cuatro manos','3','Sonata','Duo','Mozart');
 INSERT INTO composiciones values ('El rapto del serrallo','3','Opera','Orquesta Sinfónica y Vocalista','Mozart');
 ---
 INSERT INTO composiciones values ('Nocturnos Opus 9','21','Nocturnos','Instrumental','Chopin');
-INSERT INTO composiciones values ('Concierto para piano n2 en Fa M','3','Concierto','Orquesta Sinfónica y solista','Chopin');
-INSERT INTO composiciones values ('Sonata para Cello en Sol m Opus 65','4','Sonata','Orquesta Sinfónica y solista','Chopin');
+INSERT INTO composiciones values ('Concierto para piano n2 en Fa M','3','Concierto','Orquesta solista','Chopin');
+INSERT INTO composiciones values ('Sonata para Cello en Sol m Opus 65','4','Sonata','Orquesta solista','Chopin');
 ---
 INSERT INTO composiciones values ('Pasión Según San Juan','40','Oratorio','Orquesta Sinfónica','Bach')
 INSERT INTO composiciones values ('Concierto de Brandemburgo','3','Concierto','Orquesta de Cámara','Bach')
@@ -116,7 +116,7 @@ INSERT INTO composiciones values ('El holandés errante','15','Opera','Orquesta 
 INSERT INTO composiciones values ('Tristán e Isolda','37','Opera','Orquesta Sinfónica','Wagner')
 
     /* Tabla interprete */
-INSERT INTO interpretes values ('Orquesta Sajona de Dresde','Alemania','Orquesta Sinfónica y solista','Hilary Hahn')
+INSERT INTO interpretes values ('Orquesta Sajona de Dresde','Alemania','Orquesta solista','Hilary Hahn')
 INSERT INTO interpretes values ('Orquesta Sinfónica de Chicago','Estados Unidos','Orquesta Sinfónica','Nulo')
 INSERT INTO interpretes values ('Orquesta filarmónica de Berlín','Alemania','Orquesta Sinfónica','Nulo')
 INSERT INTO interpretes values ('Orquesta Filarmónica de Viena','Austria','Orquesta Sinfónica y Vocalista','Nulo')
@@ -126,7 +126,7 @@ INSERT INTO interpretes values ('Orquesta Sinfónica de Londres','Inglaterra','O
 INSERT INTO interpretes values ('Orquesta Filarmónica de Nueva York','Estados Unidos','Orquesta Sinfónica','Nulo')
 INSERT INTO interpretes values ('Real Orquesta del Concertgebouv','Paises Bajos','Duo','Nulo')
 INSERT INTO interpretes values ('Orquesta Filarmónica de Panamá','Panamá','Orquesta Sinfónica','Nulo')
-INSERT INTO interpretes values ('Orquesta Filarmónica de Sant Petesburgo','Rusia','Orquesta Sinfónica y solista','Nulo')
+INSERT INTO interpretes values ('Orquesta Filarmónica de Sant Petesburgo','Rusia','Orquesta solista','Nulo')
 INSERT INTO interpretes values ('Orquesta Sinfónica de Boston','Estados Unidos','Orquesta de Cámara','Nulo')
 
     /* Tabla lugar_interpretacion */
