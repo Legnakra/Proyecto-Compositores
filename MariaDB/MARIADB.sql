@@ -10,6 +10,13 @@ CREATE TABLE compositores (
     CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL) 
     );
 
+CREATE TABLE tipo (
+    nom_tipo VARCHAR (40),
+    descripcion VARCHAR (70),
+    CONSTRAINT PK_nom PRIMARY KEY (nom_tipo),
+    CONSTRAINT CK_tipo CHECK (CONCAT(UCASE(LEFT(nom_tipo, 1))))
+);
+
 CREATE TABLE composiciones (
     nom_composicion VARCHAR (70),
     movimientos INT (2),
@@ -18,21 +25,19 @@ CREATE TABLE composiciones (
     nom_autor VARCHAR (30),
     CONSTRAINT PK_nomcomp PRIMARY KEY (nom_composicion),
     CONSTRAINT FK_nomautor FOREIGN KEY (nom_autor) REFERENCES compositores (nombre),
+    CONSTRAINT FK_tipo_comp FOREIGN KEY (tipo) REFERENCES tipo (nom_tipo),
     CONSTRAINT CK_movimientos CHECK (movimientos >= 1),
     CONSTRAINT CK_tipo CHECK (CONCAT(UCASE(LEFT(tipo, 1))))
 );
---------
+
 CREATE TABLE interprete (
     nom_interprete VARCHAR (70),
     pais VARCHAR (20) NOT NULL,
-    tipo_comp VARCHAR (40),
+    composicion VARCHAR (70),
     solista VARCHAR (50) DEFAULT 'Nulo',
     CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete),
-    CONSTRAINT CK_tipo_comp CHECK (CONCAT(UCASE(LEFT(tipo_comp, 1)))),
---------
-    CONSTRAINT FK_tipo_comp FOREIGN KEY (tipo_comp) REFERENCES composiciones (tipo)
+    CONSTRAINT FK_comp FOREIGN KEY (composicion) REFERENCES composiciones (nom_composicion)
 );
---------
 
 CREATE TABLE lugar_interpretacion (
     lugar VARCHAR (50),
@@ -43,19 +48,19 @@ CREATE TABLE lugar_interpretacion (
     CONSTRAINT CK_arquitecto CHECK (CONCAT(UCASE(LEFT(arquitecto, 1))))
     );
 
+---> Mariadb no posee restricciones en DATETIME, por lo que crearé una constraint que englobe el rango de horas de inicio de la interpretación.
 CREATE TABLE interpretacion (
     cod_interpretacion VARCHAR (5),
-    obra VARCHAR (70),
+    obra VARCHAR (70) DEFAULT 'Orquestal',
     interprete VARCHAR (70),
     lugar_int VARCHAR (50),
     fecha DATE,
+    hora_inicio TIME,
     CONSTRAINT PK_codint PRIMARY KEY (cod_interpretacion),
     CONSTRAINT FK_interp FOREIGN KEY (interprete) REFERENCES interprete (nom_interprete),
---------
-    CONSTRAINT FK_lugar FOREIGN KEY (lugar_int) REFERENCES interpretacion (lugar),
-    CONSTRAINT CK_obra CHECK obra DEFAULT 'Orquestal',
+    CONSTRAINT FK_lugar FOREIGN KEY (lugar_int) REFERENCES lugar_interpretacion (lugar),
     CONSTRAINT CK_interp CHECK (CONCAT(UCASE(LEFT(interprete, 1)))),
-    CONSTRAINT CK_hora CHECK (hora > TO_DATE(TO_CHAR(TRUNC)(hora), 'DD/MM/YYYY' || '18:00:00', 'DD/MM/YYYY HH24:MI:SS')) BETWEEN (hora < TO_DATE(TO_CHAR(TRUNC)(hora), 'DD/MM/YYYY' || '22:00:00', 'DD/MM/YYYY HH24:MI:SS'))
+    CONSTRAINT CK_hora_inicio CHECK ((TIME_FORMAT(hora_inicio, '%H') >= '18') AND (TIME_FORMAT(hora_inicio, '%H') <= '22'))
 );
 
 /* ENUNCIADOS */
