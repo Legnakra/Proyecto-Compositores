@@ -14,6 +14,7 @@ CREATE TABLE tipo (
     nom_tipo VARCHAR (40),
     descripcion VARCHAR (70),
     CONSTRAINT PK_nomtip PRIMARY KEY (nom_tipo)
+    CONSTRAINT CK_int CHECK (nom_tipo=INITCAP(nom_tipo))
 );
 
 CREATE TYPE form AS ENUM ('Orquesta sinfonica','Orquesta solista', 'Orquesta cámara');
