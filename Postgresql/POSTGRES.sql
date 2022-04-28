@@ -6,58 +6,59 @@ CREATE TABLE compositores (
     pais_nacimiento VARCHAR (20),     
     CONSTRAINT PK_nom PRIMARY KEY (nombre), 
     CONSTRAINT CK_fnac CHECK (fecha_nacimiento BETWEEN '1500-01-01' AND '1900-12-31'), 
-    CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('Renacimiento','Barroco','Clásica','Clasicismo','Romanticismo', 'Moderna')),     
+    CONSTRAINT CK_epoca CHECK (epoca=INITCAP(epoca)),     
     CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL) 
     );
 
 CREATE TABLE tipo (
     nom_tipo VARCHAR (40),
     descripcion VARCHAR (70),
-    CONSTRAINT PK_nom PRIMARY KEY (nom_tipo),
-    CONSTRAINT CK_tipo CHECK (CONCAT(UCASE(LEFT(nom_tipo, 1))))
+    CONSTRAINT PK_nomtip PRIMARY KEY (nom_tipo)
 );
+
+CREATE TYPE form AS ENUM ('Orquesta sinfonica','Orquesta solista', 'Orquesta cámara');
 
 CREATE TABLE composiciones (
     nom_composicion VARCHAR (70),
-    movimientos INT (2),
+    movimientos SERIAL,
     tipo VARCHAR (40),
-    grupo ENUM ('Orquesta sinfonica','Orquesta solista', 'Orquesta cámara'),
+    grupo VARCHAR (30),
     nom_autor VARCHAR (30),
     CONSTRAINT PK_nomcomp PRIMARY KEY (nom_composicion),
     CONSTRAINT FK_nomautor FOREIGN KEY (nom_autor) REFERENCES compositores (nombre),
     CONSTRAINT FK_composicion FOREIGN KEY (tipo) REFERENCES tipo (nom_tipo),
     CONSTRAINT CK_movimientos CHECK (movimientos >= 1),
-    CONSTRAINT CK_tipo CHECK (CONCAT(UCASE(LEFT(tipo, 1))))
+    CONSTRAINT CK_tipo CHECK (tipo=INITCAP(tipo))
 );
 
 CREATE TABLE interprete (
     nom_interprete VARCHAR (70),
     pais VARCHAR (20) NOT NULL,
     solista VARCHAR (50) DEFAULT 'Nulo',
-    CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete)
+    CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete),
+    CONSTRAINT CK_int CHECK (nom_interprete=INITCAP(nom_interprete))
 );
 
 CREATE TABLE lugar_interpretacion (
     lugar VARCHAR (50),
     pais VARCHAR (20) NOT NULL,
-    aforo INT (5) UNIQUE,
+    aforo SERIAL UNIQUE,
     arquitecto VARCHAR (50),
     CONSTRAINT PK_lugar PRIMARY KEY (lugar),
-    CONSTRAINT CK_arquitecto CHECK (CONCAT(UCASE(LEFT(arquitecto, 1))))
+    CONSTRAINT CK_arquitecto CHECK (arquitecto=INITCAP(arquitecto))
     );
 
----> Mariadb no posee restricciones en DATETIME, por lo que crearé una constraint que englobe el rango de horas de inicio de la interpretación.
 CREATE TABLE interpretacion (
     cod_interpretacion VARCHAR (5),
     obra VARCHAR (70) DEFAULT 'Orquestal',
     interprete VARCHAR (70),
-    lugar_int VARCHAR (50),
-    fecha DATETIME,
+    lugar_inter VARCHAR (50),
+    fecha TIMESTAMP,
     CONSTRAINT PK_codint PRIMARY KEY (cod_interpretacion),
     CONSTRAINT FK_interp FOREIGN KEY (interprete) REFERENCES interprete (nom_interprete),
-    CONSTRAINT FK_obra FOREIGN KEY (obra) REFERENCES composiciones (nom_composicion),
-    CONSTRAINT FK_lugar FOREIGN KEY (lugar_int) REFERENCES lugar_interpretacion (lugar),
-    CONSTRAINT CK_hora_inicio CHECK ((TIME_FORMAT(fecha, '%H') >= '18') AND (TIME_FORMAT(fecha, '%H') <= '22'))
+    CONSTRAINT FK_lugar FOREIGN KEY (lugar_inter) REFERENCES lugar_interpretacion (lugar),
+    CONSTRAINT CK_interp CHECK (interprete=INITCAP(interprete)),
+    CONSTRAINT CK_hora_inicio CHECK ((TIMESTAMP_FORMAT(fecha, '%H') >= '18') AND (TIMESTAMP_FORMAT(fecha, '%H') <= '22'))
 );
 
 /* ENUNCIADOS */
@@ -105,7 +106,7 @@ INSERT INTO tipo (nom_tipo, descripcion) VALUES ('Oratorio','Género dramático 
 
     /* Tabla composiciones */
 ---
-INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Concierto para violin n3 en Sol M',3,'Concierto','Orquesta solista','Mozart');
+INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Concierto para violin n3 en Sol M','3','Concierto','Orquesta solista','Mozart');
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('La flauta mágica','42','Opera','Orquesta Sinfonica','Mozart');
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('El rapto del serrallo','3','Opera','Orquesta Sinfonica','Mozart');
 ---
@@ -121,7 +122,7 @@ INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) val
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Selva morale e spirituale','4','Misa','Orquesta Sinfónica','Monteverdi');
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('El regreso de Ulises a la patria','5','Opera','Orquesta Sinfónica','Monteverdi');
 ---
-INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Sinfonía nº 5','4','Sinfonía','Orquesta Sinfónica','Beethoven');
+INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Sinfonía nº 5','4','Sinfonia','Orquesta Sinfónica','Beethoven');
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Marcha turca','1','Danza','Orquesta Sinfónica','Beethoven');
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Concierto para violín','4','Concierto','Orquesta solista','Beethoven');
 ---
@@ -130,26 +131,26 @@ INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) val
 INSERT INTO composiciones (nom_composicion,movimientos,tipo,grupo,nom_autor) values ('Tristán e Isolda','37','Opera','Orquesta Sinfónica','Wagner');
 
     /* Tabla interprete */
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sajona de Dresde','Alemania','Hilary Hahn');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica de Chicago','Estados Unidos','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Berlín','Alemania','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Viena','Austria','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta de Cleveland','Estados Unidos','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Madrid','España','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica de Londres','Inglaterra','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Nueva York','Estados Unidos','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Real Orquesta del Concertgebouv','Paises Bajos','Duo','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Panamá','Panamá','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Sant Petesburgo','Rusia','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica de Boston','Estados Unidos','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sajona De Dresde','Alemania','Hilary Hahn');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica De Chicago','Estados Unidos','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Berlín','Alemania','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Viena','Austria','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta De Cleveland','Estados Unidos','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Madrid','España','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica De Londres','Inglaterra','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Nueva York','Estados Unidos','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Real Orquesta Del Concertgebouv','Paises Bajos','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Panamá','Panamá','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica De Sant Petesburgo','Rusia','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica De Boston','Estados Unidos','Nulo');
 
     /* Tabla lugar_interpretacion */
-INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Teatro de la Maestranza','España','1800','Aurelio del Pozo');
+INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Teatro de la Maestranza','España','1800','Aurelio Del Pozo');
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Ópera de Sidney','Australia','1547','Jorn Utzon');
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Teatro Colón','Argentina','2487','Francesco Tamburini');
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Teatro de la Scala','Italia','2030','Arturo Toscanini');
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Ópera Garnier','Francia','1979','Odile Deqc');
-INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Ópera Estatal de Viena','Austria','1709','Eduard van der Nüll');
+INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Ópera Estatal de Viena','Austria','1709','Eduard Van Der Nüll');
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Royal Ópera House','Inglaterra','2268','Edward Middleton Barry');
 
     /* Tabla interpretación */
@@ -167,11 +168,11 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
 INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('W1112','Tristán e Isolda','Orquesta Sinfónica De Chicago','Ópera Estatal de Viena','2000-05-13 19:30:00');
 
 
-
 /* Consultas */
+
 /* 1: Muestra los compositores que nacieron antes del año 1813. */
 SELECT * 
 FROM compositores 
 WHERE fecha_nacimiento >'1813-01-01';
 
-/* 2: Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.*/
+
