@@ -169,9 +169,23 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
 
 
 /* Consultas */
-/* 1: Muestra los compositores que nacieron antes del año 1813. */
+/* 1: Muestra los compositores que nacieron después del año 1813. */
 SELECT * 
 FROM compositores 
 WHERE fecha_nacimiento >'1813-01-01';
 
 /* 2: Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.*/
+CREATE VIEW obras 
+    AS 
+    SELECT c.nom_composicion, c.nom_autor, a.epoca
+    FROM composiciones c, compositores a
+    WHERE a.nombre = c.nom_autor;
+
+SELECT *
+FROM obras;
+
+/* 3: Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.*/
+SELECT lugar, pais, obra, lugar_int 
+FROM lugar_interpretacion, interpretacion 
+WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_int;
+

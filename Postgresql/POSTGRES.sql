@@ -176,4 +176,18 @@ SELECT *
 FROM compositores 
 WHERE fecha_nacimiento >'1813-01-01';
 
+/* 2: Muestra el nombre de las obras,su compositor, y su época. */
+CREATE VIEW obras 
+    AS 
+    SELECT c.nom_composicion, c.nom_autor, a.epoca
+    FROM composiciones c, compositores a
+    WHERE a.nombre = c.nom_autor;
+
+SELECT *
+FROM obras;
+
+/* 3: Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.*/
+SELECT lugar, pais, obra, lugar_inter 
+FROM lugar_interpretacion, interpretacion 
+WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_inter;
 
