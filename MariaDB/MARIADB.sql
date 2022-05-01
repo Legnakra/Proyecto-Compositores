@@ -6,7 +6,7 @@ CREATE TABLE compositores (
     pais_nacimiento VARCHAR (20),     
     CONSTRAINT PK_nom PRIMARY KEY (nombre), 
     CONSTRAINT CK_fnac CHECK (fecha_nacimiento BETWEEN '1500-01-01' AND '1900-12-31'), 
-    CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('Renacimiento','Barroco','Clásica','Clasicismo','Romanticismo', 'Moderna')),     
+    CONSTRAINT CK_epoca CHECK (upper(epoca) IN ('RENACIMIENTO','BARROCO','CLASICISMO','ROMANTICISMO', 'MODERNA')),     
     CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL) 
     );
 
@@ -65,8 +65,8 @@ CREATE TABLE interpretacion (
 /* 1.	Añade la columna director en la tabla Interpretación, que sea una cadena de 30 caracteres.*/
 ALTER TABLE interpretacion ADD director VARCHAR (3);
 
-/* 2.	Eliminar la columna Movimientos de la tabla Composiciones.*/
-ALTER TABLE composiciones DROP movimientos;
+/* 2.	Eliminar la columna Grupo de la tabla Composiciones.*/
+ALTER TABLE composiciones DROP grupo;
 
 /* 3.	Modificar pais_nacimiento en la tabla Compositores incrementado a 30 los caracteres de la cadena.*/
 ALTER TABLE compositores MODIFY pais_nacimiento VARCHAR (30);
@@ -74,8 +74,8 @@ ALTER TABLE compositores MODIFY pais_nacimiento VARCHAR (30);
 /* 4.	Añadir una restricción a Aforo en la tabla Interpretación para que el mínimo sea 250. */
 ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
 
-/* 5.	Eliminar la restricción default sobre la columna Obra de la tabla Interpretación.*/
-ALTER TABLE interpretacion DROP CONSTRAINT CK_obra;
+/* 5.	Eliminar la restricción de hora sobre la tabla Interpretación.*/
+ALTER TABLE interpretacion DROP CONSTRAINT CK_hora_inicio;
 
 /* 6.	Desactivar la restricción que afecta a País_nacimiento de la tabla Compositores.*/
 ALTER TABLE compositores DISABLE CK_nac;
@@ -83,12 +83,12 @@ ALTER TABLE compositores DISABLE CK_nac;
 /* INSERTS */
 
     /* Tabla compositores */
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Mozart', '1756-01-27', '1791-12-05' ,'Clasicismo', 'Alemania');
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Chopin','1849-10-17', '1849-10-17' ,'Romanticismo', 'Polonia');
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Bach','1685-03-31', '1750-07-28','Barroco', 'Alemania');
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Monteverdi','1567-05-09', '1643-11-29','Barroco', 'Italia');
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Beethoven','1770-12-26', '1827-03-26','Clasicismo','Alemania');
-INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Wagner','1813-05-22', '1883-02-13','Romanticismo','Alemania');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Mozart', '1756-01-27', '1791-12-05' ,'CLASICISMO', 'Alemania');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Chopin','1849-10-17', '1849-10-17' ,'ROMANTICISMO', 'Polonia');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Bach','1685-03-31', '1750-07-28','BARROCO', 'Alemania');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Monteverdi','1567-05-09', '1643-11-29','BARROCO', 'Italia');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Beethoven','1770-12-26', '1827-03-26','CLASICISMO','Alemania');
+INSERT INTO compositores (nombre, fecha_nacimiento,fecha_muerte,epoca,pais_nacimiento) values ('Wagner','1813-05-22', '1883-02-13','ROMANTICISMO','Alemania');
 
     /* Tabla tipo */
 INSERT INTO tipo (nom_tipo, descripcion) VALUES ('Sinfonia', 'Composición musical de 3 o 4 movimientos');
@@ -138,7 +138,7 @@ INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta de Clevel
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Madrid','España','Nulo');
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica de Londres','Inglaterra','Nulo');
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Nueva York','Estados Unidos','Nulo');
-INSERT INTO interprete (nom_interprete,pais,solista) values ('Real Orquesta del Concertgebouv','Paises Bajos','Duo','Nulo');
+INSERT INTO interprete (nom_interprete,pais,solista) values ('Real Orquesta del Concertgebouv','Paises Bajos','Nulo');
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Panamá','Panamá','Nulo');
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Filarmónica de Sant Petesburgo','Rusia','Nulo');
 INSERT INTO interprete (nom_interprete,pais,solista) values ('Orquesta Sinfónica de Boston','Estados Unidos','Nulo');
@@ -153,19 +153,18 @@ INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Ópera E
 INSERT INTO lugar_interpretacion (lugar,pais,aforo,arquitecto) values ('Royal Ópera House','Inglaterra','2268','Edward Middleton Barry');
 
     /* Tabla interpretación */
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('M1111','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala','2019-12-25 19:00:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('C1111','Sonata para Cello en Sol m Opus 65','Orquesta Filarmónica De Sant Petesburgo','Ópera Garnier','1992-02-17 18:00:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('B1111','Concierto de Brandemburgo','Orquesta Filarmónica De Madrid','Ópera Estatal de Viena','1983-07-06 21:00:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('M1112','Tristán e Isolda','Orquesta De Cleveland','Ópera de Sidney','2002-08-21 18:30:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('B1112','Sinfonía nº 5','Orquesta Filarmónica De Berlín','Ópera Garnier','1894-01-01 21:30:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('W1111','Concierto de Brandemburgo','Orquesta Filarmónica De Madrid','Teatro de la Maestranza','2015-12-31 18:45:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('M1113','Concierto para violin n3 en Sol M','Orquesta Sajona De Dresde','Teatro Colón','1997-06-24 21:00:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('C1113','Tristán e Isolda','Orquesta Filarmónica De Berlín','Royal Ópera House','1989-09-18 20:40:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('B1113','El rapto del serrallo','Orquesta Filarmónica De Viena','Teatro de la Maestranza','1981-03-03 18:45:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('M1114','El rapto del serrallo','Orquesta Sinfónica De Londres','Teatro de la Scala','2020-02-14 19:00:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('B1114','Concierto de Brandemburgo','Orquesta Sinfónica De Boston','Ópera de Sidney','2021-08-15 21:45:00');
-INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha) values ('W1112','Tristán e Isolda','Orquesta Sinfónica De Chicago','Ópera Estatal de Viena','2000-05-13 19:30:00');
-
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('M1111','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala','2019-12-25 19:00:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('C1111','Sonata para Cello en Sol m Opus 65','Orquesta Filarmónica De Sant Petesburgo','Ópera Garnier','1992-02-17 18:00:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1111','Concierto de Brandemburgo','Orquesta Filarmónica De Madrid','Ópera Estatal de Viena','1983-07-06 21:00:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('M1112','Tristán e Isolda','Orquesta De Cleveland','Ópera de Sidney','2002-08-21 18:30:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1112','Sinfonía nº 5','Orquesta Filarmónica De Berlín','Ópera Garnier','1894-01-01 21:30:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('W1111','Concierto de Brandemburgo','Orquesta Filarmónica De Madrid','Teatro de la Maestranza','2015-12-31 18:45:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('M1113','Concierto para violin n3 en Sol M','Orquesta Sajona De Dresde','Teatro Colón','1997-06-24 21:00:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('C1113','Tristán e Isolda','Orquesta Filarmónica De Berlín','Royal Ópera House','1989-09-18 20:40:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1113','El rapto del serrallo','Orquesta Filarmónica De Viena','Teatro de la Maestranza','1981-03-03 18:45:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('M1114','El rapto del serrallo','Orquesta Sinfónica De Londres','Teatro de la Scala','2020-02-14 19:00:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1114','Concierto de Brandemburgo','Orquesta Sinfónica De Boston','Ópera de Sidney','2021-08-15 21:45:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('W1112','Tristán e Isolda','Orquesta Sinfónica De Chicago','Ópera Estatal de Viena','2000-05-13 19:30:00');
 
 
 /* Consultas */
@@ -189,3 +188,50 @@ SELECT lugar, pais, obra, lugar_int
 FROM lugar_interpretacion, interpretacion 
 WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_int;
 
+/* 4: Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos. */
+    SELECT p.nombre, p.epoca, count(nom_composicion) AS obras_totales
+    FROM compositores p, composiciones o
+    WHERE o.nom_autor = p.nombre
+    GROUP BY p.nombre;
+
+
+/* 5: Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, 
+el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados.*/
+    CREATE TABLE Monteverdi (
+        PIEZA VARCHAR (70),
+        MOV INT (2),
+        EP VARCHAR (20)
+    );
+
+    INSERT INTO Monteverdi
+    SELECT o.nom_composicion, o.movimientos, p.epoca
+    FROM compositores p, composiciones o
+    WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
+ 
+/* 6: Actualizar el numero de movimientos de la Pasión Según San Juan a 47. */
+    UPDATE composiciones
+    SET movimientos = '47'
+    WHERE nom_composicion = 'Pasión Según San Juan';
+
+/* 7: Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación. */
+    DELETE FROM interpretacion
+    WHERE obra = 'Tristán e Isolda';
+
+/* 8 Nombre del compositor y el número de movimientos en total de sus obras. */
+    SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
+    FROM composiciones
+    GROUP BY nom_autor
+    HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+
+/* 9: Mostra el código de interpretación y el tipo de composición. */
+    SELECT i.obra, i.fecha, i.cod_interpretacion
+    FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
+    WHERE i.fecha >= '2000-05-05';
+
+SELECT 
+
+/* 10: Consultas con operadores conjuntos*/
+
+/* 11: Subconsultas correlacionadas. */
+
+/* 12: Consulta que incluya varios tipos de los indicados anteriormente.*/
