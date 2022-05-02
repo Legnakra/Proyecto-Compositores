@@ -13,7 +13,7 @@ CREATE TABLE compositores (
 CREATE TABLE tipo (
     nom_tipo VARCHAR (40),
     descripcion VARCHAR (70),
-    CONSTRAINT PK_nomtip PRIMARY KEY (nom_tipo)
+    CONSTRAINT PK_nomtip PRIMARY KEY (nom_tipo),
     CONSTRAINT CK_int CHECK (nom_tipo=INITCAP(nom_tipo))
 );
 
@@ -65,13 +65,13 @@ CREATE TABLE interpretacion (
 /* ENUNCIADOS */
 
 /* 1.	Añade la columna director en la tabla Interpretación, que sea una cadena de 30 caracteres.*/
-ALTER TABLE interpretacion ADD director VARCHAR (3);
+ALTER TABLE interpretacion ADD director VARCHAR (30);
 
-/* 2.	Eliminar la columna Movimientos de la tabla Composiciones.*/
-ALTER TABLE composiciones DROP movimientos;
+/* 2.	Eliminar la columna Grupo de la tabla Composiciones.*/
+ALTER TABLE composiciones DROP grupo;
 
 /* 3.	Modificar pais_nacimiento en la tabla Compositores incrementado a 30 los caracteres de la cadena.*/
-ALTER TABLE compositores MODIFY pais_nacimiento VARCHAR (30);
+ALTER TABLE compositores ALTER COLUMN pais_nacimiento TYPE VARCHAR (30);
 
 /* 4.	Añadir una restricción a Aforo en la tabla Interpretación para que el mínimo sea 250. */
 ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
@@ -171,23 +171,108 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
 
 /* Consultas */
 
-/* 1: Muestra los compositores que nacieron antes del año 1813. */
-SELECT * 
-FROM compositores 
-WHERE fecha_nacimiento >'1813-01-01';
+/* CONSULTAS SENCILLAS */
+    ---Muestra los compositores que nacieron después del año 1813.
+        SELECT * 
+        FROM compositores 
+        WHERE fecha_nacimiento >'1813-01-01';
 
-/* 2: Muestra el nombre de las obras,su compositor, y su época. */
-CREATE VIEW obras 
-    AS 
-    SELECT c.nom_composicion, c.nom_autor, a.epoca
-    FROM composiciones c, compositores a
-    WHERE a.nombre = c.nom_autor;
+    ---Consulta el nombre de las obras qcuyo tipo de composicion sea 'Concierto.
+        SELECT nom_composicion AS Conciertos
+        FROM composiciones
+        WHERE tipo = 'Concierto';
 
-SELECT *
-FROM obras;
+/* VISTAS */
+    ---Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.
+        CREATE VIEW obras 
+        AS 
+        SELECT c.nom_composicion, c.nom_autor, a.epoca
+        FROM composiciones c, compositores a
+        WHERE a.nombre = c.nom_autor;
 
-/* 3: Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.*/
-SELECT lugar, pais, obra, lugar_inter 
-FROM lugar_interpretacion, interpretacion 
-WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_inter;
+        SELECT *
+        FROM obras;
 
+/* SUBCONSULTAS */
+    ---Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
+        SELECT lugar, pais, obra, lugar_inter 
+        FROM lugar_interpretacion, interpretacion 
+        WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_inter;
+
+/* COMBINACIONES DE TABLAS */
+    ---Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos.
+        SELECT p.nombre, p.epoca, count(nom_composicion) AS obras_totales
+        FROM compositores p, composiciones o
+        WHERE o.nom_autor = p.nombre
+        GROUP BY p.nombre;
+
+
+    ---Muestra el pais en los que se haya interpretado 'El rapto del serrallo'.
+        SELECT pais
+        FROM lugar_interpretacion
+        WHERE lugar IN(SELECT lugar_inter
+                        FROM interpretacion
+                        WHERE obra = 'El rapto del serrallo');
+
+/* INSERCIÓN DE REGISTROS */
+    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
+        CREATE TABLE Monteverdi (
+            PIEZA VARCHAR (70),
+            MOV SERIAL,
+            EP VARCHAR (20)
+        );
+
+        INSERT INTO Monteverdi
+        SELECT o.nom_composicion, o.movimientos, p.epoca
+        FROM compositores p, composiciones o
+        WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
+
+/* ACTUALIZACIÓN DE REGISTROS */
+    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
+        UPDATE composiciones
+        SET movimientos = '47'
+        WHERE nom_composicion = 'Pasión Según San Juan';
+
+/* BORRADO DE REGISTROS */
+    ---Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación.
+        DELETE FROM interpretacion
+        WHERE obra = 'Tristán e Isolda';
+
+/* HAVING Y GROUP BY */
+    ---Nombre del compositor y el número de movimientos en total de sus obras.
+        SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
+        FROM composiciones
+        GROUP BY nom_autor
+        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+
+/* COMBINACIONES EXTERNAS */
+    ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
+        SELECT i.obra, i.fecha, i.cod_interpretacion
+        FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
+        WHERE i.fecha >= '2000-05-05';
+
+/* CONSULTAS CON OPERADORES CONJUNTOS */
+    --- Consulta el tipo de composicion con su descripcion y los tipos de composición con el nombre de las mismas y anexiónalas.
+        SELECT tipo, nom_composicion
+        FROM composiciones
+        UNION
+        SELECT nom_tipo, descripcion
+        FROM tipo;
+        
+
+/* SUBCONSULTAS CORRELACIONADAS. */
+    --- Muestra las obras de Beethoven que han sido interpretadas en Francia
+        SELECT DISTINCT obra
+        FROM interpretacion
+        WHERE obra IN (SELECT nom_composicion
+                            FROM composiciones
+                            WHERE nom_autor = 'Beethoven'
+                            and lugar_inter IN (SELECT lugar
+                                              FROM lugar_interpretacion
+                                              WHERE pais = 'Francia'));
+        
+/* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
+    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
+    SELECT i.obra, i.fecha, i.cod_interpretacion
+    FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
+    WHERE (i.cod_interpretacion ~ '^M') and (i.fecha >='2000-01-01');
