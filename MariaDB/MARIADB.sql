@@ -60,25 +60,6 @@ CREATE TABLE interpretacion (
     CONSTRAINT CK_hora_inicio CHECK ((TIME_FORMAT(fecha, '%H') >= '18') AND (TIME_FORMAT(fecha, '%H') <= '22'))
 );
 
-/* ENUNCIADOS */
-
-/* 1.	Añade la columna director en la tabla Interpretación, que sea una cadena de 30 caracteres.*/
-ALTER TABLE interpretacion ADD director VARCHAR (3);
-
-/* 2.	Eliminar la columna Grupo de la tabla Composiciones.*/
-ALTER TABLE composiciones DROP grupo;
-
-/* 3.	Modificar pais_nacimiento en la tabla Compositores incrementado a 30 los caracteres de la cadena.*/
-ALTER TABLE compositores MODIFY pais_nacimiento VARCHAR (30);
-
-/* 4.	Añadir una restricción a Aforo en la tabla Interpretación para que el mínimo sea 250. */
-ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
-
-/* 5.	Eliminar la restricción de hora sobre la tabla Interpretación.*/
-ALTER TABLE interpretacion DROP CONSTRAINT CK_hora_inicio;
-
-/* 6.	Desactivar la restricción que afecta a País_nacimiento de la tabla Compositores.*/
-ALTER TABLE compositores DISABLE CK_nac;
 
 /* INSERTS */
 
@@ -165,15 +146,60 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) 
 INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('M1114','El rapto del serrallo','Orquesta Sinfónica De Londres','Teatro de la Scala','2020-02-14 19:00:00');
 INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1114','Concierto de Brandemburgo','Orquesta Sinfónica De Boston','Ópera de Sidney','2021-08-15 21:45:00');
 INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('W1112','Tristán e Isolda','Orquesta Sinfónica De Chicago','Ópera Estatal de Viena','2000-05-13 19:30:00');
+INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_int,fecha) values ('B1115','Concierto para violín','Orquesta Sinfónica De Chicago','Ópera Garnier','2000-05-13 19:30:00');
+
+
+/* ENUNCIADOS */
+
+/* 1.	Añade la columna director en la tabla Interpretación, que sea una cadena de 30 caracteres.*/
+ALTER TABLE interpretacion ADD director VARCHAR (30);
+    ---INSERTS
+        INSERT INTO interpretacion (director) VALUES ('Sir Charles Mackerras');
+        INSERT INTO interpretacion (director) VALUES ('Sir Thomas Beecham');
+        INSERT INTO interpretacion (director) VALUES ('Sir Colin Davis');
+        INSERT INTO interpretacion (director) VALUES ('Yevgeny Mravinsky');
+        INSERT INTO interpretacion (director) VALUES ('Piere Monteux');
+        INSERT INTO interpretacion (director) VALUES ('Bernard Haitink');
+        INSERT INTO interpretacion (director) VALUES ('George Szell');
+        INSERT INTO interpretacion (director) VALUES ('Carlo Maria Giulini');
+        INSERT INTO interpretacion (director) VALUES ('Piere Boulez');
+        INSERT INTO interpretacion (director) VALUES ('Wilhelm Furtwängler');
+        INSERT INTO interpretacion (director) VALUES ('Daniel Baremboim');
+        INSERT INTO interpretacion (director) VALUES ('Gustavo Dudamel');
+        INSERT INTO interpretacion (director) VALUES ('Gustavo Gimeno');
+
+/* 2.	Eliminar la columna Grupo de la tabla Composiciones.*/
+ALTER TABLE composiciones DROP grupo;
+
+/* 3.	Modificar pais_nacimiento en la tabla Compositores incrementado a 30 los caracteres de la cadena.*/
+ALTER TABLE compositores MODIFY pais_nacimiento VARCHAR (30);
+
+/* 4.	Añadir una restricción a Aforo en la tabla Interpretación para que el mínimo sea 250. */
+ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
+
+/* 5.	Eliminar la restricción de hora sobre la tabla Interpretación.*/
+ALTER TABLE interpretacion DROP CONSTRAINT CK_hora_inicio;
+
+/* 6.	Desactivar la restricción que afecta a País_nacimiento de la tabla Compositores.*/
+ALTER TABLE compositores DISABLE CK_nac;
+
 
 
 /* Consultas */
-/* 1: Muestra los compositores que nacieron después del año 1813. */
-SELECT * 
-FROM compositores 
-WHERE fecha_nacimiento >'1813-01-01';
 
-/* 2: Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.*/
+/* CONSULTAS SENCILLAS */
+    /* Muestra los compositores que nacieron después del año 1813.*/
+        SELECT * 
+        FROM compositores 
+        WHERE fecha_nacimiento >'1813-01-01';
+
+    /* Consulta el nombre de las obras qcuyo tipo de composicion sea 'Concierto.*/
+        SELECT nom_composicion
+        FROM composiciones
+        WHERE tipo = 'Concierto';
+
+/* VISTAS /*
+    /* Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.*/
 CREATE VIEW obras 
     AS 
     SELECT c.nom_composicion, c.nom_autor, a.epoca
@@ -183,55 +209,84 @@ CREATE VIEW obras
 SELECT *
 FROM obras;
 
-/* 3: Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.*/
-SELECT lugar, pais, obra, lugar_int 
-FROM lugar_interpretacion, interpretacion 
-WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_int;
+/* SUBCONSULTAS */
+    ---Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
+        SELECT lugar, pais, obra, lugar_int 
+        FROM lugar_interpretacion, interpretacion 
+        WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_int;
 
-/* 4: Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos. */
-    SELECT p.nombre, p.epoca, count(nom_composicion) AS obras_totales
-    FROM compositores p, composiciones o
-    WHERE o.nom_autor = p.nombre
-    GROUP BY p.nombre;
+/* COMBINACIONES DE TABLAS */
+    ---Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos.
+        SELECT p.nombre, p.epoca, count(nom_composicion) AS obras_totales
+        FROM compositores p, composiciones o
+        WHERE o.nom_autor = p.nombre
+        GROUP BY p.nombre;
+
+    ---Muestra el pais en los que se haya interpretado 'El rapto del serrallo'.
+        SELECT pais
+        FROM lugar_interpretacion
+        WHERE lugar IN (SELECT lugar_int
+                        FROM interpretacion
+                        WHERE obra = 'El rapto del Serrallo');
+
+/* INSERCIÓN DE REGISTROS */
+    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
+        CREATE TABLE Monteverdi (
+            PIEZA VARCHAR (70),
+            MOV INT (2),
+            EP VARCHAR (20)
+        );
+
+        INSERT INTO Monteverdi
+        SELECT o.nom_composicion, o.movimientos, p.epoca
+        FROM compositores p, composiciones o
+        WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
 
 
-/* 5: Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, 
-el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados.*/
-    CREATE TABLE Monteverdi (
-        PIEZA VARCHAR (70),
-        MOV INT (2),
-        EP VARCHAR (20)
-    );
+/* ACTUALIZACIÓN DE REGISTROS */
+    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
+        UPDATE composiciones
+        SET movimientos = '47'
+        WHERE nom_composicion = 'Pasión Según San Juan';
 
-    INSERT INTO Monteverdi
-    SELECT o.nom_composicion, o.movimientos, p.epoca
-    FROM compositores p, composiciones o
-    WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
- 
-/* 6: Actualizar el numero de movimientos de la Pasión Según San Juan a 47. */
-    UPDATE composiciones
-    SET movimientos = '47'
-    WHERE nom_composicion = 'Pasión Según San Juan';
+/* BORRADO DE REGISTROS */
+    ---Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación.
+        DELETE FROM interpretacion
+        WHERE obra = 'Tristán e Isolda';
 
-/* 7: Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación. */
-    DELETE FROM interpretacion
-    WHERE obra = 'Tristán e Isolda';
+/* HAVING Y GROUP BY */
+    ---Nombre del compositor y el número de movimientos en total de sus obras.
+        SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
+        FROM composiciones
+        GROUP BY nom_autor
+        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
 
-/* 8 Nombre del compositor y el número de movimientos en total de sus obras. */
-    SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
-    FROM composiciones
-    GROUP BY nom_autor
-    HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+/* COMBINACIONES EXTERNAS
+    ---Mostra el código de interpretación y el tipo de composición. COMBINACIONES EXTERNAS*/ outer join
+        SELECT i.obra, i.fecha, i.cod_interpretacion
+        FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
+        WHERE i.fecha >= '2000-05-05';
 
-/* 9: Mostra el código de interpretación y el tipo de composición. */
-    SELECT i.obra, i.fecha, i.cod_interpretacion
-    FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE i.fecha >= '2000-05-05';
+/* CONSULTAS CON OPERADORES CONJUNTOS */
+    ---Consultas con operadores conjuntos*/
+        (SELECT nom_composicion FROM composiciones EXCEPT SELECT obra FROM interpretacion) AS
+        UNION
+        (SELECT obra FROM interpretacion EXCEPT SELECT nom_composicion FROM composiciones);
 
-SELECT 
+/* SUBCONSULTAS CORRELACIONADAS. */
+    --- Muestra las obras de Beethoven que han sido interpretadas en Francia
+        SELECT DISTINCT obra
+        FROM interpretacion
+        WHERE obra IN (SELECT nom_composicion
+                            FROM composiciones
+                            WHERE nom_autor = 'Beethoven'
+                            and lugar_int IN (SELECT lugar
+                                              FROM lugar_interpretacion
+                                              WHERE pais = 'Francia'));
+        
+/* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
 
-/* 10: Consultas con operadores conjuntos*/
-
-/* 11: Subconsultas correlacionadas. */
-
-/* 12: Consulta que incluya varios tipos de los indicados anteriormente.*/
+    ---
+SELECT i.cod_interpretacion, c.nom_composicion
+FROM interpretacion i, composiciones c
+WHERE c.nom_autor = 'Wagner';
