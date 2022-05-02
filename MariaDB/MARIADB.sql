@@ -261,17 +261,20 @@ FROM obras;
         GROUP BY nom_autor
         HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
 
-/* COMBINACIONES EXTERNAS
-    ---Mostra el código de interpretación y el tipo de composición. COMBINACIONES EXTERNAS*/ outer join
+/* COMBINACIONES EXTERNAS */
+    ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
         SELECT i.obra, i.fecha, i.cod_interpretacion
         FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
         WHERE i.fecha >= '2000-05-05';
 
 /* CONSULTAS CON OPERADORES CONJUNTOS */
-    ---Consultas con operadores conjuntos*/
-        (SELECT nom_composicion FROM composiciones EXCEPT SELECT obra FROM interpretacion) AS
+    --- Consulta el tipo de composicion con su descripcion y los tipos de composición con el nombre de las mismas y anexiónalas.
+        SELECT tipo, nom_composicion
+        FROM composiciones
         UNION
-        (SELECT obra FROM interpretacion EXCEPT SELECT nom_composicion FROM composiciones);
+        SELECT nom_tipo, descripcion
+        FROM tipo
+        
 
 /* SUBCONSULTAS CORRELACIONADAS. */
     --- Muestra las obras de Beethoven que han sido interpretadas en Francia
@@ -285,8 +288,11 @@ FROM obras;
                                               WHERE pais = 'Francia'));
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
-
-    ---
-SELECT i.cod_interpretacion, c.nom_composicion
-FROM interpretacion i, composiciones c
-WHERE c.nom_autor = 'Wagner';
+    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M.
+    SELECT i.obra, i.fecha, i.cod_interpretacion
+    FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
+    WHERE i.cod_interpretacion REGEXP '^M'
+    UNION
+    SELECT i.obra, i.fecha, i.cod_interpretacion
+    FROM interpretacion i RIGHT JOIN composiciones c ON c.nom_composicion = i.obra
+    WHERE i.cod_interpretacion REGEXP '^M'
