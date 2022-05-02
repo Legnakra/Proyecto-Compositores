@@ -181,8 +181,8 @@ ALTER TABLE lugar_interpretacion ADD CONSTRAINT CK_minimo CHECK (aforo > 250);
 ALTER TABLE interpretacion DROP CONSTRAINT CK_hora_inicio;
 
 /* 6.	Desactivar la restricción que afecta a País_nacimiento de la tabla Compositores.*/
-ALTER TABLE compositores DISABLE CK_nac;
-
+ALTER TABLE compositores DISABLE KEYS;
+ALTER TABLE compositores ENABLE KEYS;
 
 
 /* Consultas */
@@ -259,7 +259,7 @@ FROM obras;
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor
-        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+        HAVING MAX(movimientos) <50 OR MIN(movimientos) < 5;
 
 /* COMBINACIONES EXTERNAS */
     ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
@@ -275,7 +275,6 @@ FROM obras;
         SELECT nom_tipo, descripcion
         FROM tipo;
         
-
 /* SUBCONSULTAS CORRELACIONADAS. */
     --- Muestra las obras de Beethoven que han sido interpretadas en Francia
         SELECT DISTINCT obra
