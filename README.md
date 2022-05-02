@@ -74,12 +74,12 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 	* Muestra los compositores nacidos después del año 1813.
 	* Muestra el nombre de las obras cuyo tipo es 'Concierto'. 
 * Vistas
-	* Crea una vista que muestre el nombre de las obras, su compositor y su época.
+	* Crea una vista que muestre el nombre de las obras, su compositor y su época, ordenados por número de movimientos.
 * Subconsultas
 	* Obtiene el nombre y el país de los lugares donde se ha interpretado 'Concierto de Brandemburgo'.
 * Combinaciones de tablas.
 	* Muestra un listado con los compositores, la época y el número total de obras de cada que existen en la base de datos.
-	* Muestra el código de la interpretación, el nombre del autor y las obras más representadas .
+	* Muestra el país en los que se ha interpretado 'El rapto del serrallo'.
 * Inserción de registros. Consulta de datos anexados.
 	* Crear una tabla llamada Monteverdi (PIEZA, MOV, EP) con el mismo tipo y tamaño de las ya existentes. Intertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados.
 * Modificación de registros. Consulta de actualización.
@@ -91,6 +91,8 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 * Outer joins. Combinaciones externas.
 	* Muestra el nombre de la obra, la fecha y el código de las interpretaciones de forma posterior al 5 de mayo de 2000.
 * Consultas con operadores conjuntos.
-	* ...
+	* Consulta el tipo de composición con su descripción y los tipos de composiciones con el nombre de las mismas y las anexionamos.
 * Subconsulta corelacionada.
-	* Muestra el nombre del compositor que más obras interpretadas tiene. 
+	* Muestra las obras de Beethovem qie jam sido interpretadas en Francia.
+* Consulta que incluya varios tipos de los ya empleados anteriormente.
+	* Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo código comiente por M y hayan sido realizadas en el S.XXI.
