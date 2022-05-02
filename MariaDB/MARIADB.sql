@@ -273,7 +273,7 @@ FROM obras;
         FROM composiciones
         UNION
         SELECT nom_tipo, descripcion
-        FROM tipo
+        FROM tipo;
         
 
 /* SUBCONSULTAS CORRELACIONADAS. */
@@ -288,11 +288,7 @@ FROM obras;
                                               WHERE pais = 'Francia'));
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
-    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M.
+    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
     SELECT i.obra, i.fecha, i.cod_interpretacion
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE i.cod_interpretacion REGEXP '^M'
-    UNION
-    SELECT i.obra, i.fecha, i.cod_interpretacion
-    FROM interpretacion i RIGHT JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE i.cod_interpretacion REGEXP '^M'
+    WHERE (i.cod_interpretacion REGEXP '^M') and i.fecha REGEXP '^20';
