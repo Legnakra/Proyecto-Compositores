@@ -10,12 +10,12 @@ CREATE TABLE compositores (
     CONSTRAINT CK_nac CHECK (pais_nacimiento IS NOT NULL) 
     );
 
-CREATE TABLE tipo (
-    nom_tipo VARCHAR (40),
-    descripcion VARCHAR (70),
-    CONSTRAINT PK_nom PRIMARY KEY (nom_tipo),
-    CONSTRAINT CK_tipo CHECK CONSTRAINT CHECK (cast(nom_tipo as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$'));
-);
+CREATE TABLE tipo (     
+    nom_tipo VARCHAR (40),     
+    descripcion VARCHAR (70),     
+    CONSTRAINT PK_nom PRIMARY KEY (nom_tipo),     
+    CONSTRAINT CK_tipo CHECK (cast(nom_tipo as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$')
+    );
 
 CREATE TABLE composiciones (
     nom_composicion VARCHAR (70),
