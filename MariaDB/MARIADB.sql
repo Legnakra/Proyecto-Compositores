@@ -27,7 +27,8 @@ CREATE TABLE composiciones (
     CONSTRAINT FK_nomautor FOREIGN KEY (nom_autor) REFERENCES compositores (nombre),
     CONSTRAINT FK_composicion FOREIGN KEY (tipo) REFERENCES tipo (nom_tipo),
     CONSTRAINT CK_movimientos CHECK (movimientos >= 1),
-    CONSTRAINT CK_tipo CHECK (cast(tipo as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$'));
+    CONSTRAINT CK_tipo CHECK (cast(tipo as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$')
+    );
 
 CREATE TABLE interprete (
     nom_interprete VARCHAR (70),
@@ -42,10 +43,9 @@ CREATE TABLE lugar_interpretacion (
     aforo INT (5) UNIQUE,
     arquitecto VARCHAR (50),
     CONSTRAINT PK_lugar PRIMARY KEY (lugar),
-    CONSTRAINT CK_arquitecto CHECK (cast(arquitecto as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$'));
+    CONSTRAINT CK_arquitecto CHECK (cast(arquitecto as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$')
     );
 
----> Mariadb no posee restricciones en DATETIME, por lo que crearé una constraint que englobe el rango de horas de inicio de la interpretación.
 CREATE TABLE interpretacion (
     cod_interpretacion VARCHAR (5),
     obra VARCHAR (70) DEFAULT 'Orquestal',
@@ -56,7 +56,7 @@ CREATE TABLE interpretacion (
     CONSTRAINT FK_interp FOREIGN KEY (interprete) REFERENCES interprete (nom_interprete),
     CONSTRAINT FK_obra FOREIGN KEY (obra) REFERENCES composiciones (nom_composicion),
     CONSTRAINT FK_lugar FOREIGN KEY (lugar_int) REFERENCES lugar_interpretacion (lugar),
-    CONSTRAINT CK_hora_inicio CHECK (date_format(fecha, '%H:%i:%s') between '18:00:00' and '22:00:00'),
+    CONSTRAINT CK_hora_inicio CHECK (date_format(fecha, '%H:%i:%s') between '18:00:00' and '22:00:00'))
 );
 
 
