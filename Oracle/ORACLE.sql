@@ -75,6 +75,19 @@ INSERT INTO compositores values ('Monteverdi',TO_DATE('09/05/1567', 'dd/mm/yyyy'
 INSERT INTO compositores values ('Beethoven',TO_DATE('26/12/1770', 'dd/mm/yyyy'), TO_DATE('23/03/1827', 'dd/mm/yyyy'),'CLASICISMO','Alemania');
 INSERT INTO compositores values ('Wagner',TO_DATE('22/05/1813', 'dd/mm/yyyy'), TO_DATE('13/02/1883', 'dd/mm/yyyy'),'ROMANTICISMO','Alemania');
 
+    /* Tabla tipo */
+INSERT INTO tipo VALUES ('Sinfonia', 'Composición musical de 3 o 4 movimientos');
+INSERT INTO tipo VALUES ('Sonata','Danzas para ser sonadas');
+INSERT INTO tipo VALUES ('Opera','Accion escénica armonizada, cantada y acompañada');
+INSERT INTO tipo VALUES ('Concierto','Piezas consecutivas para orquesta y solista');
+INSERT INTO tipo VALUES ('Duo','Composición para dos instrumentos');
+INSERT INTO tipo VALUES ('Misa','Obra musical que cubre el ciclo ordinario de la liturgia');
+INSERT INTO tipo VALUES ('Nocturnos','Pieza vocal o instrumental de estructura libre');
+INSERT INTO tipo VALUES ('Danza','Pieza musical para ser bailada');
+INSERT INTO tipo VALUES ('Motete','Composición polifónica para ser cantada en iglesias');
+INSERT INTO tipo VALUES ('Tocata','Pieza instrumental para instrumentos de cuerda');
+INSERT INTO tipo VALUES ('Oratorio','Género dramático sin puesta en escena');
+
     /* Tabla composiciones */
 ---
 INSERT INTO composiciones values ('Concierto para violin n3 en Sol M','3','Concierto','Orquesta solista','Mozart');
@@ -200,11 +213,22 @@ SELECT *
 FROM obras;
 
 /* SUBCONSULTAS */
-    ---Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
-        SELECT lugar, pais, obra, lugar_int 
-        FROM lugar_interpretacion, interpretacion 
-        WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_int;
-
+    ---Obtener el nombre, el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
+        SELECT pais
+        FROM lugar_interpretacion
+        WHERE lugar IN (SELECT lugar_int
+                        FROM interpretacion
+                        WHERE obra = 'Concierto de Brandemburgo');
+                                                                    
+    ---Muestra las obras de Beethoven que han sido interpretadas en Francia
+        SELECT DISTINCT obra
+        FROM interpretacion
+        WHERE obra IN (SELECT nom_composicion
+                            FROM composiciones
+                            WHERE nom_autor = 'Beethoven'
+                            and lugar_int IN (SELECT lugar
+                                              FROM lugar_interpretacion
+                                              WHERE pais = 'Francia'));
 /* COMBINACIONES DE TABLAS */
     ---Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos.
         SELECT p.nombre, p.epoca, count(o.nom_composicion) AS obras_totales
@@ -249,7 +273,8 @@ FROM obras;
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor
-        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5
+        ORDER BY nom_autor;
 
 /* COMBINACIONES EXTERNAS */
     ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
@@ -267,14 +292,7 @@ FROM obras;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
     --- Muestra las obras de Beethoven que han sido interpretadas en Francia
-        SELECT DISTINCT obra
-        FROM interpretacion
-        WHERE obra IN (SELECT nom_composicion
-                            FROM composiciones
-                            WHERE nom_autor = 'Beethoven'
-                            and lugar_int IN (SELECT lugar
-                                              FROM lugar_interpretacion
-                                              WHERE pais = 'Francia'));
+
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
     ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.

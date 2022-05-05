@@ -195,9 +195,21 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
 
 /* SUBCONSULTAS */
     ---Obtener el nombre y el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
-        SELECT lugar, pais, obra, lugar_inter 
-        FROM lugar_interpretacion, interpretacion 
-        WHERE obra = 'Concierto de Brandemburgo' AND lugar = lugar_inter;
+        SELECT pais
+        FROM lugar_interpretacion
+        WHERE lugar IN (SELECT lugar_inter
+                        FROM interpretacion
+                        WHERE obra = 'Concierto de Brandemburgo');
+    
+    --- Muestra las obras de Beethoven que han sido interpretadas en Francia
+        SELECT DISTINCT obra
+        FROM interpretacion
+        WHERE obra IN (SELECT nom_composicion
+                            FROM composiciones
+                            WHERE nom_autor = 'Beethoven'
+                            and lugar_inter IN (SELECT lugar
+                                              FROM lugar_interpretacion
+                                              WHERE pais = 'Francia'));
 
 /* COMBINACIONES DE TABLAS */
     ---Muestra un listado con los compositores, epoca y el número total de obras de cada uno de ellos.
@@ -243,7 +255,8 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor
-        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5; 
+        HAVING MAX(movimientos) > 50 OR MIN(movimientos) < 5
+        ORDER BY nom_autor; 
 
 /* COMBINACIONES EXTERNAS */
     ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
@@ -261,15 +274,7 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         
 
 /* SUBCONSULTAS CORRELACIONADAS. */
-    --- Muestra las obras de Beethoven que han sido interpretadas en Francia
-        SELECT DISTINCT obra
-        FROM interpretacion
-        WHERE obra IN (SELECT nom_composicion
-                            FROM composiciones
-                            WHERE nom_autor = 'Beethoven'
-                            and lugar_inter IN (SELECT lugar
-                                              FROM lugar_interpretacion
-                                              WHERE pais = 'Francia'));
+    
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
     ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
