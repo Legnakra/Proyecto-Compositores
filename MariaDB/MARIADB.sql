@@ -34,7 +34,8 @@ CREATE TABLE interprete (
     nom_interprete VARCHAR (70),
     pais VARCHAR (20) NOT NULL,
     solista VARCHAR (50) DEFAULT 'Nulo',
-    CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete)
+    CONSTRAINT PK_nomint PRIMARY KEY (nom_interprete),
+    CONSTRAINT CK_tipo CHECK (cast(nom_interprete as binary) regexp binary '^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$|^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[[:space:]][A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$')
 );
 
 CREATE TABLE lugar_interpretacion (
@@ -56,7 +57,7 @@ CREATE TABLE interpretacion (
     CONSTRAINT FK_interp FOREIGN KEY (interprete) REFERENCES interprete (nom_interprete),
     CONSTRAINT FK_obra FOREIGN KEY (obra) REFERENCES composiciones (nom_composicion),
     CONSTRAINT FK_lugar FOREIGN KEY (lugar_int) REFERENCES lugar_interpretacion (lugar),
-    CONSTRAINT CK_hora_inicio CHECK (date_format(fecha, '%H:%i:%s') between '18:00:00' and '22:00:00'))
+    CONSTRAINT CK_hora_inicio CHECK (date_format(fecha, '%H:%i:%s') between '18:00:00' and '22:00:00')
 );
 
 
@@ -209,7 +210,7 @@ SELECT *
 FROM obras;
 
 /* SUBCONSULTAS */
-    ---Obtener el nombre, el país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
+    ---Obtener el nombre del país de los lugares en los que se ha interpretado 'Concierto de Brandemburgo'.
         SELECT pais
         FROM lugar_interpretacion
         WHERE lugar IN (SELECT lugar_int
@@ -245,8 +246,7 @@ FROM obras;
         CREATE TABLE Monteverdi (
             PIEZA VARCHAR (70),
             MOV INT (2),
-            EP VARCHAR (20),
-            TIPO VARCHAR (20)
+            EP VARCHAR (20)
         );
 
         INSERT INTO Monteverdi
@@ -254,6 +254,14 @@ FROM obras;
         FROM compositores p, composiciones o
         WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
 
+    --- Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra. 
+        ALTER TABLE composiciones 
+        ADD total_interpretaciones INT (5);
+
+        UPDATE composiciones
+        SET total_interpretaciones = (SELECT COUNT(obra)
+                                      FROM interpretacion
+                                      WHERE obra = nom_composicion);
 
 /* ACTUALIZACIÓN DE REGISTROS */
     ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
@@ -280,6 +288,13 @@ FROM obras;
         FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
         WHERE i.fecha >= '2000-05-05';
 
+    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
+        SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
+        FROM composiciones c, interpretacion o
+        WHERE o.obra = c.nom_composicion
+        GROUP BY c.nom_composicion, c.nom_autor
+        ORDER BY Num_Interpretaciones ASC;
+
 /* CONSULTAS CON OPERADORES CONJUNTOS */
     --- Consulta el tipo de composicion con su descripcion y los tipos de composición con el nombre de las mismas y anexiónalas.
         SELECT tipo, nom_composicion
@@ -289,7 +304,12 @@ FROM obras;
         FROM tipo;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
-    ---
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
+    SELECT *
+    FROM composiciones c
+    WHERE movimientos = (SELECT MAX(movimientos)
+                         FROM composiciones
+                         WHERE nom_composicion = c.nom_composicion);
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
     ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.

@@ -238,6 +238,15 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         SELECT o.nom_composicion, o.movimientos, p.epoca
         FROM compositores p, composiciones o
         WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
+    
+    --- Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra. 
+        ALTER TABLE composiciones 
+        ADD total_interpretaciones INT (5);
+
+        UPDATE composiciones
+        SET total_interpretaciones = (SELECT COUNT(obra)
+                                      FROM interpretacion
+                                      WHERE obra = nom_composicion);
 
 /* ACTUALIZACIÓN DE REGISTROS */
     ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
@@ -264,6 +273,13 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
         WHERE i.fecha >= '2000-05-05';
 
+    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
+        SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
+        FROM composiciones c, interpretacion o
+        WHERE o.obra = c.nom_composicion
+        GROUP BY c.nom_composicion, c.nom_autor
+        ORDER BY Num_Interpretaciones ASC;
+
 /* CONSULTAS CON OPERADORES CONJUNTOS */
     --- Consulta el tipo de composicion con su descripcion y los tipos de composición con el nombre de las mismas y anexiónalas.
         SELECT tipo, nom_composicion
@@ -272,12 +288,16 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         SELECT nom_tipo, descripcion
         FROM tipo;
         
-
 /* SUBCONSULTAS CORRELACIONADAS. */
-    
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
+    SELECT *
+    FROM composiciones c
+    WHERE movimientos = (SELECT MAX(movimientos)
+                         FROM composiciones
+                         WHERE nom_composicion = c.nom_composicion);
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
     ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
     SELECT i.obra, i.fecha, i.cod_interpretacion
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE (i.cod_interpretacion ~ '^M') and (i.fecha >='2000-01-01');
+    WHERE (i.cod_interpretacion ~ '^M') and (i.fecha >='2000-01-01');  

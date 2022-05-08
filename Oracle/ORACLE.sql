@@ -71,7 +71,7 @@ CREATE TABLE interpretacion (
 INSERT INTO compositores values ('Mozart', TO_DATE('27/01/1756', 'dd/mm/yyyy'), TO_DATE('05/12/1791', 'dd/mm/yyyy'),'CLASICISMO', 'Alemania');
 INSERT INTO compositores values ('Chopin',TO_DATE('17/10/1849', 'dd/mm/yyyy'), TO_DATE('17/10/1849', 'dd/mm/yyyy'),'ROMANTICISMO', 'Polonia');
 INSERT INTO compositores values ('Bach',TO_DATE('31/03/1685', 'dd/mm/yyyy'), TO_DATE('28/071750', 'dd/mm/yyyy'),'BARROCO', 'Alemania');
-INSERT INTO compositores values ('Monteverdi',TO_DATE('09/05/1567', 'dd/mm/yyyy'),TO_DATE('29/11/1643', 'dd/mm/yyyy'),,'BARROCO', 'Italia');
+INSERT INTO compositores values ('Monteverdi',TO_DATE('09/05/1567', 'dd/mm/yyyy'),TO_DATE('29/11/1643', 'dd/mm/yyyy'),'BARROCO', 'Italia');
 INSERT INTO compositores values ('Beethoven',TO_DATE('26/12/1770', 'dd/mm/yyyy'), TO_DATE('23/03/1827', 'dd/mm/yyyy'),'CLASICISMO','Alemania');
 INSERT INTO compositores values ('Wagner',TO_DATE('22/05/1813', 'dd/mm/yyyy'), TO_DATE('13/02/1883', 'dd/mm/yyyy'),'ROMANTICISMO','Alemania');
 
@@ -256,6 +256,14 @@ FROM obras;
         FROM compositores p, composiciones o
         WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
 
+    --- Crear la columna total_interpretaciones, donde se incluya el número de veces que ha sido interpretada una obra.
+        ALTER TABLE composiciones
+        ADD total_interpretaciones NUMBER (5);
+
+        UPDATE composiciones
+        SET total_interpretaciones = (SELECT COUNT(obra)
+                                      FROM interpretacion
+                                      WHERE obra = nom_composicion);
 
 /* ACTUALIZACIÓN DE REGISTROS */
     ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
@@ -282,6 +290,13 @@ FROM obras;
         FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
         WHERE i.fecha >= '05/05/2000';
 
+    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
+        SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
+        FROM composiciones c, interpretacion o
+        WHERE o.obra = c.nom_composicion
+        GROUP BY c.nom_composicion, c.nom_autor
+        ORDER BY Num_Interpretaciones ASC;
+
 /* CONSULTAS CON OPERADORES CONJUNTOS */
     --- Consulta el tipo de composicion con su descripcion y los tipos de composición con el nombre de las mismas y anexiónalas.
         SELECT nom_tipo, descripcion
@@ -291,7 +306,12 @@ FROM obras;
         FROM composiciones;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
-    --- Muestra las obras de Beethoven que han sido interpretadas en Francia
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
+    SELECT *
+    FROM composiciones c
+    WHERE movimientos = (SELECT MAX(movimientos)
+                         FROM composiciones
+                         WHERE nom_composicion = c.nom_composicion);
 
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
