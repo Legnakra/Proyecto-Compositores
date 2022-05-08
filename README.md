@@ -30,7 +30,7 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 | **nom_composición** | cadena de caracteres (70) |  |
 | movimientos | numérico hasta 99 | Mayor de 1 |
 | tipo | cadena de caracteres (40) | Mayúscula inicial |
-| grupo | cadena de caracteres |Orquesta Sinfónica,Orquesta Solista,Orquesta Cámara |
+| grupo | cadena de caracteres | Orquesta Sinfónica,Orquesta Solista,Orquesta Cámara |
 | *nom_autor* | cadena de caracteres (30) |   |
 
 ### Interpretación
@@ -46,9 +46,8 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 ### Intérprete
 | Columna | tipo de dato | Restricción |
 | --- | --- | --- |
-| **nom_interprete** | cadena de caracteres (70) |  |
+| **nom_interprete** | cadena de caracteres (70) | Mayúscula inicial |
 | pais | cadena de caracteres (20) | No nulo |
-| *tipo_comp* | cadena de caracteres (70) | Orquesta Sinfónica,Orquesta Solista,Orquesta Cámara |
 | solista | cadena de caracteres (50) | Por defecto 'Nulo' |
 
 ### Lugar de interpretación
@@ -74,14 +73,16 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 	* Muestra los compositores nacidos después del año 1813.
 	* Muestra el nombre de las obras cuyo tipo es 'Concierto'. 
 * Vistas
-	* Crea una vista que muestre el nombre de las obras, su compositor y su época, ordenados por número de movimientos.
+	* Muestra el nombre de las obras, su compositor y su época, ordenados por número de movimientos.
 * Subconsultas
 	* Obtiene el nombre y el país de los lugares donde se ha interpretado 'Concierto de Brandemburgo'.
+	* Muestra las obras de Beethoven que han sido interpretadas en Francia.
 * Combinaciones de tablas.
 	* Muestra un listado con los compositores, la época y el número total de obras de cada que existen en la base de datos.
 	* Muestra el país en los que se ha interpretado 'El rapto del serrallo'.
 * Inserción de registros. Consulta de datos anexados.
 	* Crear una tabla llamada Monteverdi (PIEZA, MOV, EP) con el mismo tipo y tamaño de las ya existentes. Intertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados.
+	* Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra.
 * Modificación de registros. Consulta de actualización.
 	* Actualizar el número de movimientos de la Pasión Según San Juan a 47 movimientos.
 * Borrado de registros. Consulta de eliminación.
@@ -90,9 +91,14 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 	* Muestra el nombre de los autores y sus obras con mayor número de movimientos, siendo menores a 50, y con menor número de movimientos, siendo inferior de 5, ordenados por el nombre del autor.
 * Outer joins. Combinaciones externas.
 	* Muestra el nombre de la obra, la fecha y el código de las interpretaciones de forma posterior al 5 de mayo de 2000.
+	* Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
 * Consultas con operadores conjuntos.
 	* Consulta el tipo de composición con su descripción y los tipos de composiciones con el nombre de las mismas y las anexionamos.
 * Subconsulta corelacionada.
-	* Muestra las obras de Beethovem qie jam sido interpretadas en Francia.
+	* Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
 * Consulta que incluya varios tipos de los ya empleados anteriormente.
 	* Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo código comiente por M y hayan sido realizadas en el S.XXI.
+
+## Autora :computer:
+* María Jesús Alloza Rodríguez
+* :school:I.E.S. Gonzalo Nazareno :round_pushpin:(Dos Hermanas, Sevilla).
