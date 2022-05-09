@@ -227,17 +227,22 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
                         WHERE obra = 'El rapto del serrallo');
 
 /* INSERCIÓN DE REGISTROS */
-    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
+    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza sea 'Nocturnos Opus 9' que está en la tabla composiciones, el número de movimientos sea igual que 'Marcha turca' y la época de las obra de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
         CREATE TABLE Monteverdi (
             PIEZA VARCHAR (70),
-            MOV SERIAL,
+            MOV INT (2),
             EP VARCHAR (20)
         );
 
-        INSERT INTO Monteverdi
-        SELECT o.nom_composicion, o.movimientos, p.epoca
-        FROM compositores p, composiciones o
-        WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
+        INSERT INTO Monteverdi (PIEZA, MOV, EP)
+        VALUES ('Nocturnos Opus 9', (SELECT movimientos FROM composiciones WHERE nom_composicion = 'Marcha turca'), (SELECT epoca FROM compositores WHERE nombre = 'Mozart')); 
+    
+
+/* ACTUALIZACIÓN DE REGISTROS */
+    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
+        UPDATE composiciones
+        SET movimientos = '47'
+        WHERE nom_composicion = 'Pasión Según San Juan';
     
     --- Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra. 
         ALTER TABLE composiciones 
@@ -248,19 +253,13 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
                                       FROM interpretacion
                                       WHERE obra = nom_composicion);
 
-/* ACTUALIZACIÓN DE REGISTROS */
-    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
-        UPDATE composiciones
-        SET movimientos = '47'
-        WHERE nom_composicion = 'Pasión Según San Juan';
-
 /* BORRADO DE REGISTROS */
     ---Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación.
         DELETE FROM interpretacion
         WHERE obra = 'Tristán e Isolda';
 
 /* HAVING Y GROUP BY */
-    ---Nombre del compositor y el número de movimientos en total de sus obras.
+    ---Nombre del compositor y el número de movimientos en total de sus obras, ordenados por el nombre de autor.
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor

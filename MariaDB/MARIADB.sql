@@ -242,18 +242,23 @@ FROM obras;
                         WHERE obra = 'El rapto del Serrallo');
 
 /* INSERCIÓN DE REGISTROS */
-    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
+    ---Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza sea 'Nocturnos Opus 9' que está en la tabla composiciones, el número de movimientos sea igual que 'Marcha turca' y la época de las obra de Monteverdi mediante una consulta de datos anexados. INSERCCION DE REGISTROS*/
         CREATE TABLE Monteverdi (
             PIEZA VARCHAR (70),
             MOV INT (2),
             EP VARCHAR (20)
         );
 
-        INSERT INTO Monteverdi
-        SELECT o.nom_composicion, o.movimientos, p.epoca
-        FROM compositores p, composiciones o
-        WHERE p.nombre='Monteverdi' and o.nom_autor = 'Monteverdi';
+        INSERT INTO Monteverdi (PIEZA, MOV, EP)
+        VALUES ('Nocturnos Opus 9', (SELECT movimientos FROM composiciones WHERE nom_composicion = 'Marcha turca'), (SELECT epoca FROM compositores WHERE nombre = 'Mozart')); 
 
+
+/* ACTUALIZACIÓN DE REGISTROS */
+    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
+        UPDATE composiciones
+        SET movimientos = '47'
+        WHERE nom_composicion = 'Pasión Según San Juan';
+    
     --- Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra. 
         ALTER TABLE composiciones 
         ADD total_interpretaciones INT (5);
@@ -262,12 +267,6 @@ FROM obras;
         SET total_interpretaciones = (SELECT COUNT(obra)
                                       FROM interpretacion
                                       WHERE obra = nom_composicion);
-
-/* ACTUALIZACIÓN DE REGISTROS */
-    ---Actualizar el numero de movimientos de la Pasión Según San Juan a 47.
-        UPDATE composiciones
-        SET movimientos = '47'
-        WHERE nom_composicion = 'Pasión Según San Juan';
 
 /* BORRADO DE REGISTROS */
     ---Borrar registros de 'Trsitan e Isolda' de la tabla Interpretación.
@@ -315,4 +314,10 @@ FROM obras;
     ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
     SELECT i.obra, i.fecha, i.cod_interpretacion
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE (i.cod_interpretacion REGEXP '^M') and i.fecha REGEXP '^20';
+    WHERE i.fecha REGEXP '^20' AND i.cod_interpretacion = (SELECT cod_interpretacion
+                                                            FROM interpretacion
+                                                            WHERE cod_interpretacion REGEXP '^M');
+
+
+
+                
