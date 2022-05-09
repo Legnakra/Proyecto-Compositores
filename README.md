@@ -73,7 +73,7 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 	* Muestra los compositores nacidos después del año 1813.
 	* Muestra el nombre de las obras cuyo tipo es 'Concierto'. 
 * Vistas
-	* Muestra el nombre de las obras, su compositor y su época, ordenados por número de movimientos.
+	* Muestra el nombre de las obras,su compositor, y su época, ordenados por número de movimientos.
 * Subconsultas
 	* Obtiene el nombre y el país de los lugares donde se ha interpretado 'Concierto de Brandemburgo'.
 	* Muestra las obras de Beethoven que han sido interpretadas en Francia.
@@ -81,10 +81,10 @@ A continuación mostraré las tablas que he construido en los sistemas de Oracle
 	* Muestra un listado con los compositores, la época y el número total de obras de cada que existen en la base de datos.
 	* Muestra el país en los que se ha interpretado 'El rapto del serrallo'.
 * Inserción de registros. Consulta de datos anexados.
-	* Crear una tabla llamada Monteverdi (PIEZA, MOV, EP) con el mismo tipo y tamaño de las ya existentes. Intertar en la tabla el nombre de la pieza, el número de movimientos y la época de las obras de Monteverdi mediante una consulta de datos anexados.
-	* Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra.
+	* Crear una tabla llamada Monteverdi (PIEZA, MOV, EP), con el mismo tipo y tamaño de las ya existentes. Insertar en la tabla el nombre de la pieza sea 'Nocturnos Opus 9' que está en la tabla composiciones, el número de movimientos sea igual que 'Marcha turca' y la época de las obra de Monteverdi mediante una consulta de datos anexados.
 * Modificación de registros. Consulta de actualización.
 	* Actualizar el número de movimientos de la Pasión Según San Juan a 47 movimientos.
+	* Crear una columna llamada total_interpretaciones en la tabla composiciones, donde se incluya el número de veces que ha sido interpretada una obra.
 * Borrado de registros. Consulta de eliminación.
 	* Borrar registros de 'Tristán e Isdolda' de la tabla interpretación.
 * Group by y having.
