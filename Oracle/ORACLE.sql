@@ -317,4 +317,4 @@ FROM obras;
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
     WHERE (i.fecha >='01/01/2000') AND  i.cod_interpretacion = (SELECT cod_interpretacion
                                                                 FROM interpretacion
-                                                                WHERE cod_interpretacion REGEXP_LIKE(i.cod_interpretacion, '^M')); 
+                                                                WHERE cod_interpretacion REGEXP_LIKE(i.cod_interpretacion, '^M.*4$')); 

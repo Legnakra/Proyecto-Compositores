@@ -311,12 +311,12 @@ FROM obras;
                          WHERE nom_composicion = c.nom_composicion);
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
-    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
-    SELECT i.obra, i.fecha, i.cod_interpretacion
+    ---Muestra la obra y la fecha de la interpretación realizada en el siglo XXI y que su código de interpretación comience por M y termine por 4.
+    SELECT i.cod_interpretacion, i.obra, i.fecha
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
     WHERE i.fecha REGEXP '^20' AND i.cod_interpretacion = (SELECT cod_interpretacion
                                                             FROM interpretacion
-                                                            WHERE cod_interpretacion REGEXP '^M');
+                                                            WHERE cod_interpretacion REGEXP '^M.*4$');
 
 
 

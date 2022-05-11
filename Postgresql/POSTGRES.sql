@@ -296,7 +296,9 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
                          WHERE nom_composicion = c.nom_composicion);
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
-    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
+    ---Muestra la obra y la fecha de la interpretación realizada en el siglo XXI y que su código de interpretación comience por M y termine por 4.
     SELECT i.obra, i.fecha, i.cod_interpretacion
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
-    WHERE (i.cod_interpretacion ~ '^M') and (i.fecha >='2000-01-01');  
+    WHERE (i.fecha >='2000-01-01') AND i.cod_interpretacion = (SELECT cod_interpretacion
+                                                                FROM interpretacion
+                                                                WHERE cod_interpretacion ~ 'M.*4$');
