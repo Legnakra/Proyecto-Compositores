@@ -283,11 +283,6 @@ FROM obras;
         ORDER BY nom_autor;
 
 /* COMBINACIONES EXTERNAS */
-    ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
-        SELECT i.obra, i.fecha, i.cod_interpretacion
-        FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
-        WHERE i.fecha >= '05/05/2000';
-
     --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
         SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
         FROM composiciones c, interpretacion o
@@ -304,7 +299,7 @@ FROM obras;
         FROM composiciones;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
-    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nombre del autor. Muestra las que no han sido interpretadas y ordenadas por número de movimientos.
     SELECT *
     FROM composiciones c
     WHERE movimientos = (SELECT MAX(movimientos)
@@ -312,7 +307,7 @@ FROM obras;
                          WHERE nom_composicion = c.nom_composicion);
         
 /* CONSULTA QUE INCLUYA VARIOS TIPOS DE LOS INDICADOS ANTERIORMENTE.*/
-    ---Muestra las obras, la fecha de la interpretación y el código de las interpretaciones cuyo codigo comience por M realizadas en el siglo XXI.
+    ---Muestra la obra y la fecha de la interpretación realizada en el siglo XXI y que su código de interpretación comience por M y termine por 4.
     SELECT i.obra, i.fecha, i.cod_interpretacion
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
     WHERE (i.fecha >='01/01/2000') AND  i.cod_interpretacion = (SELECT cod_interpretacion

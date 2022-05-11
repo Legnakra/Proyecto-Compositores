@@ -267,15 +267,9 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         ORDER BY nom_autor; 
 
 /* COMBINACIONES EXTERNAS */
-    ---Muestra el nombre de la obra, la fecha y el códifo de las interpretaciones realizadas de forma posterior al 5 de mayo de 2000.
-        SELECT i.obra, i.fecha, i.cod_interpretacion
-        FROM interpretacion i LEFT OUTER JOIN composiciones c ON c.nom_composicion = i.obra
-        WHERE i.fecha >= '2000-05-05';
-
-    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
+    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra, monstrando las que no han sido interpretadas y ordenándolas por número de veces que han sido interpretadas.
         SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
-        FROM composiciones c, interpretacion o
-        WHERE o.obra = c.nom_composicion
+        FROM composiciones c LEFT JOIN interpretacion o ON o.obra = c.nom_composicion
         GROUP BY c.nom_composicion, c.nom_autor
         ORDER BY Num_Interpretaciones ASC;
 
@@ -288,7 +282,7 @@ INSERT INTO interpretacion (cod_interpretacion,obra,interprete,lugar_inter,fecha
         FROM tipo;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
-    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nobre del autor.
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nombre del autor. Muestra las que no han sido interpretadas y ordenadas por número de movimientos.
     SELECT *
     FROM composiciones c
     WHERE movimientos = (SELECT MAX(movimientos)
