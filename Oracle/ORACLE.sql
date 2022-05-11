@@ -286,7 +286,6 @@ FROM obras;
     --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
         SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
         FROM composiciones c, interpretacion o
-        WHERE o.obra = c.nom_composicion
         GROUP BY c.nom_composicion, c.nom_autor
         ORDER BY Num_Interpretaciones ASC;
 
