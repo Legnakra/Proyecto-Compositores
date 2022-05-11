@@ -273,7 +273,7 @@ FROM obras;
         WHERE obra = 'Tristán e Isolda';
 
 /* HAVING Y GROUP BY */
-    ---Nombre del compositor y el número de movimientos en total de sus obras.
+    ---Nombre del compositor y el número de movimientos en total de sus obras, ordenados por el nombre de autor.
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor

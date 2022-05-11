@@ -275,7 +275,7 @@ FROM obras;
         WHERE obra = 'Tristán e Isolda';
 
 /* HAVING Y GROUP BY */
-    ---Nombre del compositor y el número de movimientos en total de sus obras.
+    ---Nombre del compositor y el número de movimientos en total de sus obras, ordenados por el nombre de autor.
         SELECT nom_autor, MAX(movimientos) AS max_movimientos, MIN(movimientos) AS min_movimientos
         FROM composiciones
         GROUP BY nom_autor
@@ -283,7 +283,7 @@ FROM obras;
         ORDER BY nom_autor;
 
 /* COMBINACIONES EXTERNAS */
-    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra.
+    --- Muestra el nombre de la obra, el nombre del autor y las veces que ha sido interpretada dicha obra, monstrando las que no han sido interpretadas y ordenándolas por número de veces que han sido interpretadas.
         SELECT c.nom_composicion, c.nom_autor, COUNT(cod_interpretacion) AS Num_Interpretaciones 
         FROM composiciones c, interpretacion o
         GROUP BY c.nom_composicion, c.nom_autor
