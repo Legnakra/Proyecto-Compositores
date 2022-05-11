@@ -296,7 +296,7 @@ FROM obras;
         FROM tipo;
         
 /* SUBCONSULTAS CORRELACIONADAS. */
-    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nombre del autor. Muestra las que no han sido interpretadas y ordenadas por número de movimientos.
+    --- Muestra el nombre de la composición, el número de movimientos, el tipo, el grupo y el nombre del autor. Muestra las que no han sido interpretadas.
     SELECT *
     FROM composiciones c
     WHERE movimientos = (SELECT MAX(movimientos)
