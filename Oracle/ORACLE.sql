@@ -311,4 +311,79 @@ FROM obras;
     FROM interpretacion i LEFT JOIN composiciones c ON c.nom_composicion = i.obra
     WHERE (i.fecha >='01/01/2000') AND  i.cod_interpretacion = (SELECT cod_interpretacion
                                                                 FROM interpretacion
-                                                                WHERE REGEXP_LIKE (cod_interpretacion, '^M.*4$')); 
+                                                                WHERE REGEXP_LIKE (cod_interpretacion, '^M.*4$'));
+
+/* PLSQL */
+
+/* FUNCIONES */
+    /* Realiza una función que pida el nombre de un compositor y muestre la época a la que pertenece */
+CREATE OR REPLACE FUNCTION EpocaCompositor (p_nombrecompositor compositores.nombre%TYPE)
+RETURN 
+    compositores.epoca%TYPE 
+IS
+    v_epoca compositores.epoca%TYPE;
+BEGIN
+    SELECT epoca 
+    INTO v_epoca 
+    FROM compositores 
+    WHERE nombre = p_nombrecompositor;
+    RETURN v_epoca;
+EXCEPTION 
+    WHEN NO_DATA_FOUND THEN 
+    DBMS_OUTPUT.PUT_LINE ('Error de nombre' || p_nombrecompositor ); 
+    RETURN -1;
+END;
+/
+
+            /*LLamamos a la función*/ 
+DECLARE 
+    v_epoca compositores.epoca%TYPE;
+BEGIN 
+    v_epoca:=EpocaCompositor('Jose');
+    DBMS_OUTPUT.PUT_LINE('La epoca del compositor es ' || v_epoca || '.');
+END;
+/
+
+    /* Realiza una función que pida el código de una interpretación y el nombre de la obra */
+CREATE OR REPLACE FUNCTION CodigoNombreObra (p_codigointerpretacion interpretacion.cod_interpretacion%TYPE)
+RETURN 
+    compositores.epoca%TYPE
+IS
+    v_nombre compositores.nombre%TYPE;
+BEGIN
+    SELECT obra
+    INTO v_nombre 
+    FROM interpretacion 
+    WHERE cod_interpretacion = p_codigointerpretacion;
+    RETURN v_nombre;
+EXCEPTION 
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE ('Error de codigo' || p_codigointerpretacion );
+    RETURN -1;
+END;
+/
+
+            /*LLamamos a la función*/ 
+DECLARE 
+    v_nombre compositores.nombre%TYPE;
+BEGIN 
+    v_nombre:=CodigoNombreObra('B1114');
+    DBMS_OUTPUT.PUT_LINE('El nombre de la obra interpretada es ' || v_nombre || '.');
+END;
+/
+
+/* PROCEDIMIENTOS */
+
+    /* Realiza un procedimiento que cuente el numero de filas que hay en la tabla Interpretación, depositando el resultado en una variable y mostrando el contenido. */
+CREATE OR REPLACE PROCEDURE NumeroFilas
+IS
+    v_numfilas NUMBER;
+BEGIN
+    SELECT count(*)
+    INTO v_numfilas
+    FROM interpretacion;
+    dbms_output.put_line('El número de filas de la tabla interpretación es: '|| v_numfilas);
+END;
+/
+            /* Ejecutamos el procedimiento */ 
+exec NumeroFilas;
