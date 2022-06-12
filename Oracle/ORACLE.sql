@@ -387,3 +387,145 @@ END;
 /
             /* Ejecutamos el procedimiento */ 
 exec NumeroFilas;
+
+/* Realiza un procedimiento que MostrarCompositoresMasInterpretados que muestre el nombre de los compositores que han interpretado más de una vez. */
+CREATE OR REPLACE PROCEDURE CompMasInterpretados
+IS
+    cursor c_compositores IS
+        SELECT nombre
+        FROM compositores
+        ORDER BY nombre desc;
+    v_nombre c_compositores%ROWTYPE;
+BEGIN
+    open c_compositores;
+    fetch c_compositores into v_nombre;
+    WHILE c_compositores%FOUND AND c_compositores%ROWCOUNT<=2 LOOP
+        dbms_output.put_line('El compositor ' || v_nombre || ' se ha interpretado dos veces o más.');
+    END LOOP;
+    IF c_compositores%ROWCOUNT < 1 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'No hay compositores con más de una interpretación.');
+    END IF;
+    close c_compositores;
+END;
+/
+
+
+/* INFORMES */
+    /* Realiza un procedimiento llamado ListadoMásInterpretados que muestre:
+        - Un listado de las 3 obras más interpretadas. 
+        - Las orquestas que lo han realizado 
+        - La fecha de interpretación.
+    Debemos controlar las siguientes excepciones:
+        - Tabla vacía de interpretación.
+        - Tabla vacía de tipo.
+        - Hay menos de 3 obras que hayan sido interpretadas.*/
+CREATE OR REPLACE PROCEDURE ComprobarExcepciones
+IS
+    e_interpretacion_vacia EXCEPTION;
+    e_tipo_vacio EXCEPTION;
+    e_numero_obras EXCEPTION;
+
+    v_num_interpretaciones NUMBER;
+    v_num_tipos NUMBER;
+    v_num_obras NUMBER;
+BEGIN
+    SELECT count(*)
+    INTO v_num_interpretaciones
+    FROM interpretacion;
+    SELECT count(*)
+    INTO v_num_tipos
+    FROM tipo;
+    SELECT count(DISTINCT obra)
+    INTO v_num_obras
+    FROM obras;
+    IF v_num_interpretaciones = 0 THEN
+        RAISE e_interpretacion_vacia;
+    END IF;
+    IF v_num_tipos = 0 THEN
+        RAISE e_tipo_vacio;
+    END IF;
+    IF v_num_obras < 4 THEN
+        RAISE e_numero_obras;
+    END IF;
+EXCEPTION
+    WHEN e_interpretacion_vacia THEN
+        dbms_output.put_line('La tabla interpretación está vacía.');
+    WHEN e_tipo_vacio THEN
+        dbms_output.put_line('La tabla tipo está vacía.');
+    WHEN e_numero_obras THEN
+        dbms_output.put_line('Hay menos de 3 obras.');
+        raise;
+END;
+
+CREATE OR REPLACE PROCEDURE MostrarCabeceraInforme
+IS
+BEGIN
+    dbms_output.put_line('Listado de las 3 obras más interpretadas.');
+    dbms_output.put_line('-------------------------------------');
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE MostrarObras (p_obras interpretacion.obra%TYPE)
+IS
+    cursor c_interpretacion is
+        SELECT obra, fecha
+        FROM interpretacion
+        WHERE obra = p_obras;
+BEGIN
+    for v_interpretacion in c_interpretacion loop
+        dbms_output.put_line('Obra: ' || v_interpretacion.obra);
+        dbms_output.put_line('Fecha: ' || v_interpretacion.fecha);
+    end loop;
+END;
+/
+---------INACABADO-------
+
+
+
+/* TRIGGERS */
+
+    /* Realiza un trigger que impida introducir una interpretación con fecha de interpretación posterior a la fecha actual. */
+CREATE OR REPLACE TRIGGER tr_fecha_interpretacion 
+BEFORE INSERT ON interpretacion 
+FOR EACH ROW
+BEGIN
+    IF (:new.fecha < sysdate) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'La fecha de interpretación debe ser posterior a la de la última obra.');
+    END IF;
+END;
+/
+
+        /* comprobación de funcionamiento */
+INSERT INTO interpretacion values ('M997','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('9/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
+INSERT INTO interpretacion values ('M998','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('11/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
+
+
+    /* Registrar todas las operaciones hechas sobre la tabla ventas en una tabla llamada Auditoria_interpretaciones donde se guarde usuario, fecha y tipo de operación. */
+CREATE TABLE Auditoria_interpretaciones (
+    usuario VARCHAR (30),
+    fecha DATE,
+    tipo_operacion VARCHAR (30)
+);
+
+CREATE OR REPLACE TRIGGER tr_auditoria_interpretaciones 
+BEFORE INSERT OR UPDATE OR DELETE ON interpretacion
+declare
+	v_operacion varchar2(20);
+begin
+	if (inserting) then
+		v_operacion := 'Insert';
+	elsif (updating) then
+		v_operacion := 'Update';
+	elsif (deleting) then
+		v_operacion := 'Delete';
+	end if;
+	insert into Auditoria_interpretaciones values(user, sysdate, v_operacion);
+end;
+/
+
+        /* comprobación de funcionamiento */
+INSERT INTO interpretacion values ('M999','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('10/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss',));
+UPDATE interpretacion SET obra = 'El holandés errante' WHERE cod_interpretacion = 'M999';
+DELETE FROM interpretacion WHERE cod_interpretacion = 'M999';
+SELECT * FROM Auditoria_interpretaciones;
