@@ -317,215 +317,306 @@ FROM obras;
 
 /* FUNCIONES */
     /* Realiza una función que pida el nombre de un compositor y muestre la época a la que pertenece */
-CREATE OR REPLACE FUNCTION EpocaCompositor (p_nombrecompositor compositores.nombre%TYPE)
-RETURN 
-    compositores.epoca%TYPE 
-IS
-    v_epoca compositores.epoca%TYPE;
-BEGIN
-    SELECT epoca 
-    INTO v_epoca 
-    FROM compositores 
-    WHERE nombre = p_nombrecompositor;
-    RETURN v_epoca;
-EXCEPTION 
-    WHEN NO_DATA_FOUND THEN 
-    DBMS_OUTPUT.PUT_LINE ('Error de nombre' || p_nombrecompositor ); 
-    RETURN -1;
-END;
-/
+        CREATE OR REPLACE FUNCTION EpocaCompositor (p_nombrecompositor compositores.nombre%TYPE)
+        RETURN 
+            compositores.epoca%TYPE 
+        IS
+            v_epoca compositores.epoca%TYPE;
+        BEGIN
+            SELECT epoca 
+            INTO v_epoca 
+            FROM compositores 
+            WHERE nombre = p_nombrecompositor;
+            RETURN v_epoca;
+        EXCEPTION 
+            WHEN NO_DATA_FOUND THEN 
+            DBMS_OUTPUT.PUT_LINE ('Error de nombre' || p_nombrecompositor ); 
+            RETURN -1;
+        END;
+        /
 
-            /*LLamamos a la función*/ 
-DECLARE 
-    v_epoca compositores.epoca%TYPE;
-BEGIN 
-    v_epoca:=EpocaCompositor('Jose');
-    DBMS_OUTPUT.PUT_LINE('La epoca del compositor es ' || v_epoca || '.');
-END;
-/
+                    /*LLamamos a la función*/ 
+        DECLARE 
+            v_epoca compositores.epoca%TYPE;
+        BEGIN 
+            v_epoca:=EpocaCompositor('Jose');
+            DBMS_OUTPUT.PUT_LINE('La epoca del compositor es ' || v_epoca || '.');
+        END;
+        /
 
     /* Realiza una función que pida el código de una interpretación y el nombre de la obra */
-CREATE OR REPLACE FUNCTION CodigoNombreObra (p_codigointerpretacion interpretacion.cod_interpretacion%TYPE)
-RETURN 
-    compositores.epoca%TYPE
-IS
-    v_nombre compositores.nombre%TYPE;
-BEGIN
-    SELECT obra
-    INTO v_nombre 
-    FROM interpretacion 
-    WHERE cod_interpretacion = p_codigointerpretacion;
-    RETURN v_nombre;
-EXCEPTION 
-    WHEN NO_DATA_FOUND THEN
-    DBMS_OUTPUT.PUT_LINE ('Error de codigo' || p_codigointerpretacion );
-    RETURN -1;
-END;
-/
+        CREATE OR REPLACE FUNCTION CodigoNombreObra (p_codigointerpretacion interpretacion.cod_interpretacion%TYPE)
+        RETURN 
+            compositores.epoca%TYPE
+        IS
+            v_nombre compositores.nombre%TYPE;
+        BEGIN
+            SELECT obra
+            INTO v_nombre 
+            FROM interpretacion 
+            WHERE cod_interpretacion = p_codigointerpretacion;
+            RETURN v_nombre;
+        EXCEPTION 
+            WHEN NO_DATA_FOUND THEN
+            DBMS_OUTPUT.PUT_LINE ('Error de codigo' || p_codigointerpretacion );
+            RETURN -1;
+        END;
+        /
 
-            /*LLamamos a la función*/ 
-DECLARE 
-    v_nombre compositores.nombre%TYPE;
-BEGIN 
-    v_nombre:=CodigoNombreObra('B1114');
-    DBMS_OUTPUT.PUT_LINE('El nombre de la obra interpretada es ' || v_nombre || '.');
-END;
-/
+                    /*LLamamos a la función*/ 
+        DECLARE 
+            v_nombre compositores.nombre%TYPE;
+        BEGIN 
+            v_nombre:=CodigoNombreObra('B1114');
+            DBMS_OUTPUT.PUT_LINE('El nombre de la obra interpretada es ' || v_nombre || '.');
+        END;
+        /
 
 /* PROCEDIMIENTOS */
 
     /* Realiza un procedimiento que cuente el numero de filas que hay en la tabla Interpretación, depositando el resultado en una variable y mostrando el contenido. */
-CREATE OR REPLACE PROCEDURE NumeroFilas
-IS
-    v_numfilas NUMBER;
-BEGIN
-    SELECT count(*)
-    INTO v_numfilas
-    FROM interpretacion;
-    dbms_output.put_line('El número de filas de la tabla interpretación es: '|| v_numfilas);
-END;
-/
-            /* Ejecutamos el procedimiento */ 
-exec NumeroFilas;
+        CREATE OR REPLACE PROCEDURE NumeroFilas
+        IS
+            v_numfilas NUMBER;
+        BEGIN
+            SELECT count(*)
+            INTO v_numfilas
+            FROM interpretacion;
+            dbms_output.put_line('El número de filas de la tabla interpretación es: '|| v_numfilas);
+        END;
+        /
+                    /* Ejecutamos el procedimiento */ 
+        exec NumeroFilas;
 
-/* Realiza un procedimiento que MostrarCompositoresMasInterpretados que muestre el nombre de los compositores que han interpretado más de una vez. */
-CREATE OR REPLACE PROCEDURE CompMasInterpretados
-IS
-    cursor c_compositores IS
-        SELECT nombre
-        FROM compositores
-        ORDER BY nombre desc;
-    v_nombre c_compositores%ROWTYPE;
-BEGIN
-    open c_compositores;
-    fetch c_compositores into v_nombre;
-    WHILE c_compositores%FOUND AND c_compositores%ROWCOUNT<=2 LOOP
-        dbms_output.put_line('El compositor ' || v_nombre || ' se ha interpretado dos veces o más.');
-    END LOOP;
-    IF c_compositores%ROWCOUNT < 1 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'No hay compositores con más de una interpretación.');
-    END IF;
-    close c_compositores;
-END;
-/
+    /* Realiza un procedimiento que MostrarCompositoresMasInterpretados que muestre el nombre de los compositores que han interpretado más de una vez. */
+        CREATE OR REPLACE PROCEDURE CompMasInterpretados
+        IS
+            cursor c_compositores IS
+                SELECT nombre
+                FROM compositores
+                ORDER BY nombre desc;
+            v_nombre c_compositores%ROWTYPE;
+        BEGIN
+            open c_compositores;
+            fetch c_compositores into v_nombre;
+            WHILE c_compositores%FOUND AND c_compositores%ROWCOUNT<=2 LOOP
+                dbms_output.put_line('El compositor ' || v_nombre || ' se ha interpretado dos veces o más.');
+            END LOOP;
+            IF c_compositores%ROWCOUNT < 1 THEN
+                RAISE_APPLICATION_ERROR(-20001, 'No hay compositores con más de una interpretación.');
+            END IF;
+            close c_compositores;
+        END;
+        /
 
+    /* Realiza un procedimiento que introduzca el nombre de un compositor y muestre el número de movimientos totales. */
+        CREATE OR REPLACE PROCEDURE DevolverMovimientosTotales (p_compositor compositores.nombre%TYPE, p_movimientostotales IN OUT NUMBER)
+        IS
+            v_movimientos NUMBER;
+        BEGIN
+            SELECT nvl(SUM(movimientos),0) INTO v_movimientos
+            FROM composiciones
+            WHERE nom_autor = p_compositor;
+            p_movimientostotales := v_movimientos;
+            dbms_output.put_line (p_movimientostotales);
+        END;
+        /
+
+            /* LLamamos a la función */
+            DECLARE
+                p_movimientostotales NUMBER;
+            BEGIN
+                DevolverMovimientosTotales ('Mozart', p_movimientostotales);
+                dbms_output.put_line('El total de movimientos de Mozart es: ' || p_movimientostotales || '.');
+            END;
+            /
 
 /* INFORMES */
     /* Realiza un procedimiento llamado ListadoMásInterpretados que muestre:
-        - Un listado de las 3 obras más interpretadas. 
-        - Las orquestas que lo han realizado 
-        - La fecha de interpretación.
-    Debemos controlar las siguientes excepciones:
-        - Tabla vacía de interpretación.
-        - Tabla vacía de tipo.
-        - Hay menos de 3 obras que hayan sido interpretadas.*/
-CREATE OR REPLACE PROCEDURE ComprobarExcepciones
-IS
-    e_interpretacion_vacia EXCEPTION;
-    e_tipo_vacio EXCEPTION;
-    e_numero_obras EXCEPTION;
+            - Un listado de las 3 obras más interpretadas.
+            - La fecha de interpretación.
+        Debemos controlar las siguientes excepciones:
+            - Tabla vacía de interpretación.
+            - Tabla vacía de tipo.
+            - Hay menos de 3 obras que hayan sido interpretadas.*/
 
-    v_num_interpretaciones NUMBER;
-    v_num_tipos NUMBER;
-    v_num_obras NUMBER;
-BEGIN
-    SELECT count(*)
-    INTO v_num_interpretaciones
-    FROM interpretacion;
-    SELECT count(*)
-    INTO v_num_tipos
-    FROM tipo;
-    SELECT count(DISTINCT obra)
-    INTO v_num_obras
-    FROM obras;
-    IF v_num_interpretaciones = 0 THEN
-        RAISE e_interpretacion_vacia;
-    END IF;
-    IF v_num_tipos = 0 THEN
-        RAISE e_tipo_vacio;
-    END IF;
-    IF v_num_obras < 4 THEN
-        RAISE e_numero_obras;
-    END IF;
-EXCEPTION
-    WHEN e_interpretacion_vacia THEN
-        dbms_output.put_line('La tabla interpretación está vacía.');
-    WHEN e_tipo_vacio THEN
-        dbms_output.put_line('La tabla tipo está vacía.');
-    WHEN e_numero_obras THEN
-        dbms_output.put_line('Hay menos de 3 obras.');
-        raise;
-END;
+        CREATE OR REPLACE PROCEDURE ComprobarExcepciones
+        IS
+            e_interpretacion_vacia EXCEPTION;
+            e_tipo_vacio EXCEPTION;
+            e_numero_obras EXCEPTION;
 
-CREATE OR REPLACE PROCEDURE MostrarCabeceraInforme
-IS
-BEGIN
-    dbms_output.put_line('Listado de las 3 obras más interpretadas.');
-    dbms_output.put_line('-------------------------------------');
-END;
-/
+            v_num_interpretaciones NUMBER;
+            v_num_tipos NUMBER;
+            v_num_obras NUMBER;
+        BEGIN
+            SELECT count(*),count(DISTINCT obra)
+            INTO v_num_interpretaciones,v_num_obras
+            FROM interpretacion;
+            SELECT count(*)
+            INTO v_num_tipos
+            FROM tipo;
+            IF v_num_interpretaciones = 0 THEN
+                RAISE e_interpretacion_vacia;
+            END IF;
+            IF v_num_tipos = 0 THEN
+                RAISE e_tipo_vacio;
+            END IF;
+            IF v_num_obras < 4 THEN
+                RAISE e_numero_obras;
+            END IF;
+        EXCEPTION
+            WHEN e_interpretacion_vacia THEN
+                dbms_output.put_line('La tabla interpretación está vacía.');
+            WHEN e_tipo_vacio THEN
+                dbms_output.put_line('La tabla tipo está vacía.');
+            WHEN e_numero_obras THEN
+                dbms_output.put_line('Hay menos de 3 obras.');
+                raise;
+        END;
+        /
 
+        CREATE OR REPLACE PROCEDURE MostrarCabeceraInforme
+        IS
+        BEGIN
+            dbms_output.put_line('Listado de las 3 obras más interpretadas.');
+            dbms_output.put_line('- - - - - - - - - - - - - - - - - - - - -');
+        END;
+        /
 
-CREATE OR REPLACE PROCEDURE MostrarObras (p_obras interpretacion.obra%TYPE)
-IS
-    cursor c_interpretacion is
-        SELECT obra, fecha
-        FROM interpretacion
-        WHERE obra = p_obras;
-BEGIN
-    for v_interpretacion in c_interpretacion loop
-        dbms_output.put_line('Obra: ' || v_interpretacion.obra);
-        dbms_output.put_line('Fecha: ' || v_interpretacion.fecha);
-    end loop;
-END;
-/
----------INACABADO-------
+        CREATE OR REPLACE PROCEDURE MostrarObras (p_obras interpretacion.obra%TYPE)
+        IS
+            cursor c_interpretacion is
+                SELECT obra, fecha
+                FROM interpretacion
+                WHERE obra = p_obras;
+        BEGIN
+            for v_interpretacion in c_interpretacion loop
+                dbms_output.put_line('Obra: ' || v_interpretacion.obra);
+                dbms_output.put_line('Fecha: ' || v_interpretacion.fecha);
+                dbms_output.put_line('------------------------------------------------------');
+            end loop;
+        END;
+        /
 
+        CREATE OR REPLACE PROCEDURE TresMasInterpretadas
+        IS
+            cursor c_tres is
+                SELECT obra, fecha, count(*) AS num_interpretaciones
+                FROM interpretacion
+                GROUP BY obra, fecha
+                ORDER BY num_interpretaciones desc;
+            v_obra c_tres%ROWTYPE;
+        BEGIN
+            ComprobarExcepciones;
+            MostrarCabeceraInforme;
+            open c_tres;
+            fetch c_tres into v_obra;
+            WHILE c_tres%FOUND AND c_tres%ROWCOUNT<=3 LOOP
+                MostrarObras(v_obra.obra);
+                fetch c_tres into v_obra;
+            END LOOP;
+            close c_tres;
+        END;
+        /
+
+        exec TresMasInterpretadas;
 
 
 /* TRIGGERS */
+    /* DE SISTEMA */
+        /* Realiza un trigger que impida introducir una interpretación con fecha de interpretación posterior a la fecha actual. */
+            CREATE OR REPLACE TRIGGER tr_fecha_interpretacion 
+            BEFORE INSERT ON interpretacion 
+            FOR EACH ROW
+            BEGIN
+                IF (:new.fecha < sysdate) THEN
+                    RAISE_APPLICATION_ERROR(-20001, 'La fecha de interpretación debe ser posterior a la de la última obra.');
+                END IF;
+            END;
+            /
 
-    /* Realiza un trigger que impida introducir una interpretación con fecha de interpretación posterior a la fecha actual. */
-CREATE OR REPLACE TRIGGER tr_fecha_interpretacion 
-BEFORE INSERT ON interpretacion 
-FOR EACH ROW
-BEGIN
-    IF (:new.fecha < sysdate) THEN
-        RAISE_APPLICATION_ERROR(-20001, 'La fecha de interpretación debe ser posterior a la de la última obra.');
-    END IF;
-END;
-/
+                    /* comprobación de funcionamiento */
+            INSERT INTO interpretacion values ('M997','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('9/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
+            INSERT INTO interpretacion values ('M998','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('11/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
 
-        /* comprobación de funcionamiento */
-INSERT INTO interpretacion values ('M997','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('9/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
-INSERT INTO interpretacion values ('M998','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('11/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss'));
+    /* DE SEGURIDAD */
+        /* Realiza un trigger que impida al usuario USUARIO que introduzca un lugar de interpretación cuyo país sea Rusia. */
+            CREATE OR REPLACE TRIGGER ImpedirLugarInterpretacion
+            BEFORE INSERT ON lugar_interpretacion
+            FOR EACH ROW
+            DECLARE
+                v_lugar lugar_interpretacion.pais%TYPE;
+            BEGIN
+                SELECT pais
+                INTO v_lugar
+                FROM lugar_interpretacion
+                WHERE lugar = :new.lugar;
+                IF v_lugar = 'Rusia' and USER = 'USUARIO' THEN
+                    RAISE_APPLICATION_ERROR(-20001, 'Error. No puedes realizar esa inserción.');
+                END IF;
+            END;
+            /
+            
+                /* comprobación de funcionamiento */
+                --- Creamos el usuario USUARIO
+                CREATE USER USUARIO IDENTIFIED BY "1234"
+                DEFAULT TABLESPACE "USERS"
+                TEMPORARY TABLESPACE "TEMP";
+                GRANT "CONNECT" TO compositores;
+                GRANT "RESOURCE" TO interpretadores;
 
+                INSERT INTO lugar_interpretacion values ('Teatro Mariinski','Rusia','2000','Valeri Guerguiev');
 
-    /* Registrar todas las operaciones hechas sobre la tabla ventas en una tabla llamada Auditoria_interpretaciones donde se guarde usuario, fecha y tipo de operación. */
-CREATE TABLE Auditoria_interpretaciones (
-    usuario VARCHAR (30),
-    fecha DATE,
-    tipo_operacion VARCHAR (30)
-);
+    /* DE AUDITORÍA */
+        /* Registrar todas las operaciones hechas sobre la tabla ventas en una tabla llamada Auditoria_interpretaciones donde se guarde usuario, fecha y tipo de operación. */
+            CREATE TABLE Auditoria_interpretaciones (
+                usuario VARCHAR (30),
+                fecha DATE,
+                tipo_operacion VARCHAR (30)
+            );
 
-CREATE OR REPLACE TRIGGER tr_auditoria_interpretaciones 
-BEFORE INSERT OR UPDATE OR DELETE ON interpretacion
-declare
-	v_operacion varchar2(20);
-begin
-	if (inserting) then
-		v_operacion := 'Insert';
-	elsif (updating) then
-		v_operacion := 'Update';
-	elsif (deleting) then
-		v_operacion := 'Delete';
-	end if;
-	insert into Auditoria_interpretaciones values(user, sysdate, v_operacion);
-end;
-/
+            CREATE OR REPLACE TRIGGER tr_auditoria_interpretaciones 
+            BEFORE INSERT OR UPDATE OR DELETE ON interpretacion
+            declare
+            	v_operacion varchar2(20);
+            begin
+            	if (inserting) then
+            		v_operacion := 'Insert';
+            	elsif (updating) then
+            		v_operacion := 'Update';
+            	elsif (deleting) then
+            		v_operacion := 'Delete';
+            	end if;
+            	insert into Auditoria_interpretaciones values(user, sysdate, v_operacion);
+            end;
+            /
 
-        /* comprobación de funcionamiento */
-INSERT INTO interpretacion values ('M999','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('10/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss',));
-UPDATE interpretacion SET obra = 'El holandés errante' WHERE cod_interpretacion = 'M999';
-DELETE FROM interpretacion WHERE cod_interpretacion = 'M999';
-SELECT * FROM Auditoria_interpretaciones;
+                    /* comprobación de funcionamiento */
+            INSERT INTO interpretacion values ('M999','La flauta mágica','Real Orquesta Del Concertgebouv','Teatro de la Scala', TO_DATE('10/06/2022 19:00:00', 'dd/mm/yyyy hh24:mi:ss',));
+            UPDATE interpretacion SET obra = 'El holandés errante' WHERE cod_interpretacion = 'M999';
+            DELETE FROM interpretacion WHERE cod_interpretacion = 'M999';
+            SELECT * FROM Auditoria_interpretaciones;
+    
+    /* DE REPLICACIÓN DE TABLAS */
+        /* Realiza un trigger que permita crear una réplica de los registros insertados en la tabla compositores */
+            CREATE TABLE ReplicarCompositores (
+                nombre VARCHAR2 (30),
+                fecha_nacimiento DATE,
+                fecha_muerte DATE,
+                epoca VARCHAR2 (20),
+                pais_nacimiento VARCHAR2 (20)
+            );
+
+            CREATE OR REPLACE TRIGGER ReplicarCompositores
+            AFTER INSERT ON compositores
+            FOR EACH ROW
+            BEGIN
+                insert into ReplicarCompositores values (:new.nombre, :new.fecha_nacimiento, :new.fecha_muerte, :new.epoca, :new.pais_nacimiento);
+            END;
+            /
+
+                /* comprobación de funcionamiento */
+                INSERT INTO compositores values ('Debussy', TO_DATE('22/08/1962', 'dd/mm/yyyy'), TO_DATE('25/03/1918', 'dd/mm/yyyy'),'IMPRESIONISMO', 'Francia');
+                INSERT INTO compositores values ('Tchaikovsky', TO_DATE('07/05/1840', 'dd/mm/yyyy'), TO_DATE('06/11/1893', 'dd/mm/yyyy'),'ROMANTICISMO', 'Rusia');
+                SELECT * FROM ReplicarCompositores;
